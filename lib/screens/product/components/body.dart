@@ -16,6 +16,9 @@ import 'package:furniture_app/screens/details/details_screen.dart';
 // import 'category_list.dart';
 import 'product_card.dart';
 
+
+
+
 class Body extends StatefulWidget {
   @override
   _MyBodyState createState() => _MyBodyState();
