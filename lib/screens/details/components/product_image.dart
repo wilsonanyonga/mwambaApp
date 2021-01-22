@@ -32,12 +32,12 @@ class ProductPoster extends StatelessWidget {
             ),
           ),
           // CachedNetworkImage(
-          //     imageUrl: "http://localhost:5000/api/uploads/$image",
+          //     imageUrl: "http://mwambabuilders.com/mwambaApp/api/uploads/$image",
           //     placeholder: (context, url) => CircularProgressIndicator(),
           //     errorWidget: (context, url, error) => Icon(Icons.error),
           // ),
           Image(
-            image: NetworkImage("http://localhost:5000/api/uploads/$image"),
+            image: NetworkImage("http://mwambabuilders.com/mwambaApp/api/uploads/$image"),
             fit: BoxFit.cover,
             height: size.width * 0.75,
             width: size.width * 0.75,),
