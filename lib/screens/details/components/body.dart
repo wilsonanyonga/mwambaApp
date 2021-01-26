@@ -5,14 +5,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:furniture_app/constants.dart';
-import 'package:furniture_app/models/DownModel.dart';
-import 'package:furniture_app/models/HomeModel.dart';
-import 'package:furniture_app/models/SafPostModel.dart';
-import 'package:furniture_app/models/SafVerifyModel.dart';
-import 'package:furniture_app/models/VerifyModel.dart';
+import 'package:mwamba_app/constants.dart';
+import 'package:mwamba_app/models/DownModel.dart';
+import 'package:mwamba_app/models/HomeModel.dart';
+import 'package:mwamba_app/models/SafPostModel.dart';
+import 'package:mwamba_app/models/SafVerifyModel.dart';
+import 'package:mwamba_app/models/VerifyModel.dart';
 import 'package:open_file/open_file.dart';
-// import 'package:furniture_app/models/product.dart';
+// import 'package:mwamba_app/models/product.dart';
 
 // import 'chat_and_add_to_cart.dart';
 // import 'list_of_colors.dart';
@@ -157,10 +157,10 @@ class _BodyState extends State<Body> {
     isDownloadedBasic = false;
     isDownloadedPremium = false;
 
-    uri = 'http://mwambabuilders.com/mwambaApp/api/uploads/${widget.product.sample}'; // url of the file to be downloaded
-    uriFloorPlan = 'http://mwambabuilders.com/mwambaApp/api/uploads/${widget.product.plan}';
-    uriBasic = 'http://mwambabuilders.com/mwambaApp/api/uploads/${widget.product.basic}';
-    uriPremium = 'http://mwambabuilders.com/mwambaApp/api/uploads/${widget.product.premium}';
+    uri = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.sample}'; // url of the file to be downloaded
+    uriFloorPlan = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.plan}';
+    uriBasic = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.basic}';
+    uriPremium = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.premium}';
 
     filename = widget.product.sample; // file name that you desire to keep
     filenameFloorPlan = widget.product.plan;
@@ -506,7 +506,10 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
   String savePath = await getFilePath(filenamePremium);
 
   // Dio dio = Dio();
-  print('object is through');
+  print('object is through /n');
+  print(uriPremium);
+  print(filenamePremium);
+  print(resultPremium);
   // response = await dio.download("https://www.google.com/", "./xx.html");
 
   
@@ -1004,25 +1007,25 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             color: Colors.red,
           ),
 
-          DialogButton(
-            child: buttonStateFloorPlan ? Text(
-              "Test",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ) : Text(
-              "No",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () async{
-              // _buttonFalse();
-              setState(() {
-                buttonStateFloorPlan = false;
-              });
-              Navigator.of(context, rootNavigator: true).pop();
-              _show500();
-            },
-            // color: Color.fromRGBO(240, 9, 4, 1.0),
-            color: Colors.red,
-          ),
+          // DialogButton(
+          //   child: buttonStateFloorPlan ? Text(
+          //     "Test",
+          //     style: TextStyle(color: Colors.white, fontSize: 20),
+          //   ) : Text(
+          //     "No",
+          //     style: TextStyle(color: Colors.white, fontSize: 20),
+          //   ),
+          //   onPressed: () async{
+          //     // _buttonFalse();
+          //     setState(() {
+          //       buttonStateFloorPlan = false;
+          //     });
+          //     Navigator.of(context, rootNavigator: true).pop();
+          //     _show500();
+          //   },
+          //   // color: Color.fromRGBO(240, 9, 4, 1.0),
+          //   color: Colors.red,
+          // ),
           
           DialogButton(
             onPressed: () async{
@@ -1040,7 +1043,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               print(buttonStateFloorPlan);
               print("button pressed");
               // _success();
-              Response responsePhone = await dio.post("http://mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+              Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
               
               SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1169,7 +1172,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               // print(buttonStateFloorPlan);
               // print("button pressed");
               // // _success();
-              // Response responsePhone = await dio.post("http://mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+              // Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
               
               // SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1273,7 +1276,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 print(buttonStateBasic);
                 print("button pressed");
                 // _success();
-                Response responsePhone = await dio.post("http://mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhoneBasic.text});
+                Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhoneBasic.text});
                 
                 SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1321,7 +1324,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 // onChanged: (value) {
                 //   Provider.of<AddTruckProvider>(context).setMessage2(null);
                 // },
-                // controller: _controllerPhone,
+                controller: _controllerPhoneBasic,
                 decoration: InputDecoration(
                   icon: Icon(Icons.phone),
                   labelText: 'Phone Number (254 712 345 678)',
@@ -1428,7 +1431,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 print(buttonStatePremium);
                 print("button pressed");
                 // _success();
-                Response responsePhone = await dio.post("http://mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhonePremium.text});
+                Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhonePremium.text});
                 
                 SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1543,7 +1546,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verify();
-            Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
             
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
@@ -1588,7 +1591,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {
@@ -1629,7 +1632,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verifyBasic();
-            Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
             
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
@@ -1674,7 +1677,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {
@@ -1715,7 +1718,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verifyPremium();
-            Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
             
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
@@ -1760,7 +1763,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {
