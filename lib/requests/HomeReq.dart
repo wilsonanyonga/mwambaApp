@@ -9,7 +9,7 @@ class HomeReq {
   // final String password;
   // final String phone;
   // final String userName;
-  final String url = 'http://mwambabuilders.com/mwambaApp/api/listHome';
+  final String url = 'http://mwambaapp.mwambabuilders.com/mwambaApp/api/listHome';
   // static String client_id = 'Your_github_client_id';
   // static String client_secret = 'Your_github_client_secret';
 
