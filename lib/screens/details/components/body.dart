@@ -761,7 +761,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               isDownloadedBasic ? Text(
                       'File Downloaded! You can see your file in the application\'s directory \n \n $directoryBasic',
                     )
-              : Text("Click to Download Floor Plan Ksh ${widget.product.basicAmount}"),
+              : Text("Floor Plan Preview Ksh ${widget.product.basicAmount}"),
             ],
           ),
         ),
@@ -814,7 +814,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 isDownloadedPremium ? Text(
                         'File Downloaded! You can see your file in the application\'s directory \n \n $directoryPremium',
                       )
-                : Text("Click to Download Floor Plan Ksh ${widget.product.premiumAmount}"),
+                : Text("Floor Plan Preview Ksh ${widget.product.premiumAmount}"),
               ],
             ),
           ),
@@ -900,7 +900,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               isDownloadedFloorPlan ? Text(
                       'File Downloaded! You can see your file in the application\'s directory \n \n $directoryFloorPlan',
                     )
-              : Text("Click to Download Floor Plan Ksh ${widget.product.planAmount}"),
+              : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
             ],
           ),
         ),
@@ -925,7 +925,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               isDownloadedFloorPlan ? Text(
                       'File Downloaded! You can see your file in the application\'s directory \n \n $directoryFloorPlan',
                     )
-              : Text("Click to Download Floor Plan Ksh ${widget.product.planAmount}"),
+              : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
             ],
           ),
         ),
