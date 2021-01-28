@@ -842,7 +842,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 isDownloaded ? Text(
                         'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
                       )
-                    : Text("Click to Download Sample Pictures"),
+                    : Text("View 3D Photos"),
               ],
             ),
           ),
@@ -870,7 +870,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 isDownloaded ? Text(
                         'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
                       )
-                    : Text("Click to Download Sample Pictures"),
+                    : Text("View 3D Photos"),
               ],
             ),
           ),
