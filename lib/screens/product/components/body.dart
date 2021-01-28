@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:furniture_app/components/search_box.dart';
-import 'package:furniture_app/constants.dart';
-import 'package:furniture_app/models/HomeModel.dart';
-import 'package:furniture_app/models/product.dart';
-import 'package:furniture_app/requests/HomeReq.dart';
-import 'package:furniture_app/screens/details/details_screen.dart';
+import 'package:mwamba_app/components/search_box.dart';
+import 'package:mwamba_app/constants.dart';
+import 'package:mwamba_app/models/HomeModel.dart';
+import 'package:mwamba_app/models/product.dart';
+import 'package:mwamba_app/requests/HomeReq.dart';
+import 'package:mwamba_app/screens/details/details_screen.dart';
 
 // for pull down to refresh
 // import 'package:pull_to_refresh/pull_to_refresh.dart';
