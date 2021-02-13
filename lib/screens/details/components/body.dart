@@ -32,7 +32,106 @@ import 'package:ext_storage/ext_storage.dart';
 
 import 'package:provider/provider.dart';
 
-const debug = true;
+
+
+/// Simplest possible model, with just one field.
+///
+/// [ChangeNotifier] is a class in `flutter:foundation`. [Counter] does
+/// _not_ depend on Provider.
+class Counter with ChangeNotifier {
+  int value = 0;
+
+  void increment() {
+    value += 1;
+    notifyListeners();
+  }
+}
+
+class DownFile with ChangeNotifier {
+  bool value;
+
+  // free download
+  bool isDownloaded;
+  String progress;
+  String directory;
+
+  // 500 download
+  bool isDownloadedFloorPlan;
+  String progressFloorPlan;
+  String directoryFloorPlan;
+  bool buttonPlanDownload;
+  bool buttonStateFloorPlan;
+
+  // -------------------------------------------------
+  // ---------------free download-------------
+  void setDownload(value) {
+    isDownloaded = value;
+    notifyListeners();
+  }
+  bool getSetDownload(){
+    return isDownloaded;
+  }
+
+  void setDirectory(value) {
+    directory = value;
+    notifyListeners();
+  }
+  String getSetDirectory(){
+    return directory;
+  }
+
+  void setProgress(value){
+    progress = value;
+    notifyListeners();
+  }
+  String getSetProgress(){
+    return progress;
+  }
+
+  // -------------------------------------------------
+  // ---------------500 download-------------
+  void setDownloadFloorPlan(value) {
+    isDownloadedFloorPlan = value;
+    notifyListeners();
+  }
+  bool getSetDownloadFloorPlan(){
+    return isDownloadedFloorPlan;
+  }
+
+  void setDirectoryFloorPlan(value) {
+    directoryFloorPlan = value;
+    notifyListeners();
+  }
+  String getSetDirectoryFloorPlan(){
+    return directoryFloorPlan;
+  }
+
+  void setProgressFloorPlan(value){
+    progressFloorPlan = value;
+    notifyListeners();
+  }
+  String getSetProgressFloorPlan(){
+    return progressFloorPlan;
+  }
+
+  void setbuttonPlanDownload(value){
+    buttonPlanDownload = value;
+    notifyListeners();
+  }
+  bool getbuttonPlanDownload(){
+    return buttonPlanDownload;
+  }
+
+  void setbuttonStateFloorPlan(value){
+    buttonStateFloorPlan = value;
+    notifyListeners();
+  }
+  bool getbuttonStateFloorPlan(){
+    return buttonStateFloorPlan;
+  }
+}
+
+
 class Body extends StatefulWidget {
   
   final Result product;
@@ -158,10 +257,12 @@ class _BodyState extends State<Body> {
 
     _goBack = true;
     buttonStateFloorPlan = true;
+    Provider.of<DownFile>(context, listen: false).setbuttonStateFloorPlan(true);
     buttonStateBasic = true;
     buttonStatePremium = true;
 
     buttonPlanDownload = true;
+    Provider.of<DownFile>(context, listen: false).setbuttonPlanDownload(true);
     buttonBasicDownload = true;
     buttonPremiumDownload = true;
 
@@ -175,19 +276,25 @@ class _BodyState extends State<Body> {
     downloadingPremium = false;
 
     progress = '-';
+    Provider.of<DownFile>(context, listen: false).setProgress('-');
     progressFloorPlan = '-';
+    Provider.of<DownFile>(context, listen: false).setProgressFloorPlan('-');
     progressBasic = '-';
     progressPremium = '-';
 
     isDownloaded = false;
+    Provider.of<DownFile>(context, listen: false).setDownload(false);
     isDownloadedFloorPlan = false;
+    Provider.of<DownFile>(context, listen: false).setDownloadFloorPlan(false);
     isDownloadedBasic = false;
     isDownloadedPremium = false;
+
 
     uri = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.sample}'; // url of the file to be downloaded
     uriFloorPlan = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.plan}';
     uriBasic = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.basic}';
     uriPremium = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.premium}';
+
 
     filename = widget.product.sample; // file name that you desire to keep
     filenameFloorPlan = widget.product.plan;
@@ -328,6 +435,7 @@ class _BodyState extends State<Body> {
     setState(() {
       isDownloaded = true;
     });
+    Provider.of<DownFile>(context, listen: false).setDownload(true);
 
     String savePath = await getFilePath(fileName);
 
@@ -367,6 +475,7 @@ class _BodyState extends State<Body> {
             progress = ((rcv / total) * 100).toStringAsFixed(0);
             print('progress');
           });
+          Provider.of<DownFile>(context, listen: false).setProgress(((rcv / total) * 100).toStringAsFixed(0));
 
           if (progress == '100') {
             setState(() {
@@ -376,6 +485,17 @@ class _BodyState extends State<Body> {
               // progress = '100';
             });
           } else if (double.parse(progress) < 100) {}
+
+          if (Provider.of<DownFile>(context, listen: false).getSetProgress() == '100') {
+            setState(() {
+              isDownloaded = true;
+              directory = savePath;
+              // progress = '100';
+            });
+            Provider.of<DownFile>(context, listen: false).setDownload(true);
+            Provider.of<DownFile>(context, listen: false).setDirectory(savePath);
+            
+          } else if (double.parse(Provider.of<DownFile>(context, listen: false).getSetProgress()) < 100) {}
         },
         deleteOnError: true,
       );
@@ -409,6 +529,9 @@ class _BodyState extends State<Body> {
           progress = "-";
           // progress = '100';
         });
+        Provider.of<DownFile>(context, listen: false).setProgress("-");
+        Provider.of<DownFile>(context, listen: false).setDownload(false);
+        Provider.of<DownFile>(context, listen: false).setDirectory(savePath);
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx and is also not 304.
         if(e.response != null) {
@@ -432,6 +555,7 @@ class _BodyState extends State<Body> {
     setState(() {
       isDownloadedFloorPlan = true;
     });
+    Provider.of<DownFile>(context, listen: false).setDownloadFloorPlan(true);
 
     String savePath = await getFilePathFloorPlan(filenameFloorPlan);
 
@@ -454,7 +578,7 @@ class _BodyState extends State<Body> {
             progressFloorPlan = ((rcv / total) * 100).toStringAsFixed(0);
             print('progress');
           });
-
+          Provider.of<DownFile>(context, listen: false).setProgressFloorPlan(((rcv / total) * 100).toStringAsFixed(0));
           if (progressFloorPlan == '100') {
             setState(() {
               _goBack = true;
@@ -463,6 +587,16 @@ class _BodyState extends State<Body> {
               // progress = '100';
             });
           } else if (double.parse(progressFloorPlan) < 100) {}
+
+          if (Provider.of<DownFile>(context, listen: false).getSetProgressFloorPlan() == '100') {
+            setState(() {
+              isDownloadedFloorPlan = true;
+              directoryFloorPlan = savePath;
+              // progress = '100';
+            });
+            Provider.of<DownFile>(context, listen: false).setDownloadFloorPlan(true);
+            Provider.of<DownFile>(context, listen: false).setDirectoryFloorPlan(savePath);
+          } else if (double.parse(Provider.of<DownFile>(context, listen: false).getSetProgressFloorPlan()) < 100) {}
         },
         deleteOnError: true,
       );
@@ -496,6 +630,9 @@ class _BodyState extends State<Body> {
           progressFloorPlan = "-";
           // progress = '100';
         });
+        Provider.of<DownFile>(context, listen: false).setProgressFloorPlan("-");
+        Provider.of<DownFile>(context, listen: false).setDownloadFloorPlan(false);
+        Provider.of<DownFile>(context, listen: false).setDirectoryFloorPlan(savePath);
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx and is also not 304.
         if(e.response != null) {
@@ -972,6 +1109,51 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
   }
 
   Widget freePdf() {
+// provider
+    // return Container(
+    //       margin: EdgeInsets.all(kDefaultPadding),
+    //       padding: EdgeInsets.symmetric(
+    //         horizontal: kDefaultPadding,
+    //         vertical: kDefaultPadding / 2,
+    //       ),
+    //       decoration: BoxDecoration(
+    //         color: Color(0xFFFCBF1E),
+    //         borderRadius: BorderRadius.circular(30),
+    //       ),
+    //       child: Center(
+    //         child: Column(
+    //           children: [
+    //             Text('$progress%'),
+    //             Text(Provider.of<DownFile>(context).getSetProgress()),
+    //             isDownloaded ? Text(
+    //                     'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
+    //                   )
+    //                 : Text("Click to Download Sample Pictures"),
+    //             Provider.of<DownFile>(context).getSetDownload() ? Text(
+    //                     '\'s directory \n \n ${Provider.of<DownFile>(context).getSetDirectory()}',
+    //                   )
+    //                 : Text("Click 2 Pictures"),
+    //           ],
+    //         ),
+    //       ),
+          
+    //     );
+//         return GestureDetector(
+          
+//           onTap: Provider.of<DownFile>(context).getSetDownload() ?  null : () async{
+//             downloadFile(uri, filename, result);
+//             // _buttonFalse();
+//           },
+//           child: Container(
+//             margin: EdgeInsets.all(kDefaultPadding),
+//             padding: EdgeInsets.symmetric(
+//               horizontal: kDefaultPadding,
+//               vertical: kDefaultPadding / 2,
+//             ),
+//             decoration: BoxDecoration(
+//               color: Color(0xFFFCBF1E),
+//               borderRadius: BorderRadius.circular(30),
+
     return GestureDetector(
         onTap: () async{
           Alert(
@@ -1038,9 +1220,32 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 
                 Text("View 3D Photos"),
               ],
+
             ),
+            child: Center(
+              child: Column(
+                children: [
+                  // Text('$progress%'),
+                  Text('${Provider.of<DownFile>(context).getSetProgress()}%'),
+                  // isDownloaded ? Text(
+                  //         'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
+                  //       )
+                  //     : Text("Click to Download Sample Pictures"),
+                  Provider.of<DownFile>(context).getSetDownload() ? Text(
+                          'File Downloaded! You can see your file in the application\'s directory \n \n ${Provider.of<DownFile>(context).getSetDirectory()}',
+                        )
+                      : Text("Click to Download Sample Pictures"),
+                ],
+              ),
+            ),
+            
           ),
+//  provider
+//         );
+   
+
         ),);
+
 
     // return Container(
     //   child: isDownloaded ? 
@@ -1059,6 +1264,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //           children: [
     //             Text('$progress%'),
     //             isDownloaded ? Text(
+
     //                     'File Downloaded! You can see your file in the Download\'s folder',
     //                   )
     //                 : Text("View 3D Photos"),
@@ -1066,6 +1272,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //             //         'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
     //             //       )
     //             //     : Text("View 3D Photos"),
+
     //           ],
     //         ),
     //       ),
@@ -1091,9 +1298,11 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //           children: [
     //             Text('$progress%'),
     //             isDownloaded ? Text(
+
     //                     'File Downloaded! You can see your file in the Downloads\'s folder',
     //                   )
     //                 : Text("View 3D Photos"),
+
     //           ],
     //         ),
     //       ),
@@ -1104,8 +1313,8 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
   }
 
   Widget plan500() {
-    return buttonPlanDownload ? GestureDetector(
-      onTap: _show500,
+    return GestureDetector(
+      onTap: Provider.of<DownFile>(context).getbuttonPlanDownload() ? _show500 : null,
       child: Container(
         margin: EdgeInsets.all(kDefaultPadding),
         padding: EdgeInsets.symmetric(
@@ -1119,9 +1328,20 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
         child: Center(
           child: Column(
             children: [
+// <<<<<<< provider
+//               // Text('$progressFloorPlan%'),
+//               Text('${Provider.of<DownFile>(context).getSetProgressFloorPlan()}%'),
+//               // isDownloadedFloorPlan ? Text(
+//               //         'File Downloaded! You can see your file in the application\'s directory \n \n ${Provider.of<DownFile>(context).getSetDirectoryFloorPlan()}',
+//               //       )
+//               // : Text("Click to Download Floor Plan Ksh ${widget.product.planAmount}"),
+//               Provider.of<DownFile>(context).getSetDownloadFloorPlan() ? Text(
+//                       'File Downloaded! You can see your file in the application\'s directory \n \n ${Provider.of<DownFile>(context).getSetDirectoryFloorPlan()}',
+// =======
               Text('$progressFloorPlan%'),
               isDownloadedFloorPlan ? Text(
                       'File Downloaded! You can see your file in the Downloads\'s folder',
+
                     )
               : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
             ],
@@ -1129,8 +1349,10 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
         ),
         
       ),
-    ) :
+    ); 
+    // :
     
+
       Container(
         margin: EdgeInsets.all(kDefaultPadding),
         padding: EdgeInsets.symmetric(
@@ -1153,7 +1375,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           ),
         ),
         
-      );
+    //   );
   }
 
   _show500() {
@@ -1181,7 +1403,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //     return Alert(context: context, title: "RFLUTTER", desc: "Flutter is awesome.").show();
     //   },
     // );
-
+    
     buttonStateFloorPlan ? Alert(
         context: context,
         title: "Floor Plan",
@@ -1266,7 +1488,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               print(buttonStateFloorPlan);
               print("button pressed");
               // _success();
+
               Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+
               
               SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1315,7 +1539,8 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             ),
             color: Colors.green,
           )
-        ]).show() :
+        ]).show() 
+        :
         Alert(
         context: context,
         title: "Floor Plan",
@@ -1395,7 +1620,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               // print(buttonStateFloorPlan);
               // print("button pressed");
               // // _success();
+
               // Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+
               
               // SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1499,7 +1726,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 print(buttonStateBasic);
                 print("button pressed");
                 // _success();
+
                 Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhoneBasic.text});
+
                 
                 SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1654,7 +1883,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 print(buttonStatePremium);
                 print("button pressed");
                 // _success();
+
                 Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhonePremium.text});
+
                 
                 SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1769,7 +2000,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verify();
+
             Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
@@ -1814,7 +2047,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
+
             // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {
@@ -1855,8 +2090,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verifyBasic();
+
             Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
-            
+
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
             //   checkoutRequestId = "";
@@ -1900,7 +2136,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
+
             // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {
@@ -1941,7 +2179,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verifyPremium();
+
             Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
@@ -1986,7 +2226,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
+
             // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {

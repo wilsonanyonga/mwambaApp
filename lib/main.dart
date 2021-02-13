@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mwamba_app/constants.dart';
 import 'package:mwamba_app/screens/product/products_screen.dart';
+
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 
-void main() async {
-  
-  runApp(MyApp());
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => DownFile()),
+
+      ],
+      child: MyApp(),
+    )
+  );
+
 }
 
 class MyApp extends StatelessWidget {
