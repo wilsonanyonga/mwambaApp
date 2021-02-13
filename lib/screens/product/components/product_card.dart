@@ -61,18 +61,18 @@ class ProductCard extends StatelessWidget {
                   // image is square but we add extra 20 + 20 padding thats why width is 200
                   width: 200,
                   child: 
-                  // Image(image: CachedNetworkImageProvider("http://localhost:5000/api/uploads/${product.uploadName}")),
+                  // Image(image: CachedNetworkImageProvider("http://mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}")),
                   CachedNetworkImage(
-                      imageUrl: "http://localhost:5000/api/uploads/${product.uploadName}",
+                      imageUrl: "http://mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}",
                       placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
                       errorWidget: (context, url, error) => Icon(Icons.error),
                       fit: BoxFit.cover
                   ),
                   // Image(
-                  //   image: NetworkImage("http://localhost:5000/api/uploads/${product.uploadName}"),
+                  //   image: NetworkImage("http://mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}"),
                   //   fit: BoxFit.cover),
                   // child: Image.asset(
-                  //   '${NetworkImage("http://localhost:5000/api/uploads/${product.uploadName}")}',
+                  //   '${NetworkImage("http://mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}")}',
                   //   fit: BoxFit.cover,
                   // ),
                 ),
