@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:furniture_app/models/HomeModel.dart';
-import 'package:furniture_app/models/product.dart';
+import 'package:mwamba_app/models/HomeModel.dart';
+import 'package:mwamba_app/models/product.dart';
 
 import '../../../constants.dart';
 
@@ -61,18 +61,22 @@ class ProductCard extends StatelessWidget {
                   // image is square but we add extra 20 + 20 padding thats why width is 200
                   width: 200,
                   child: 
-                  // Image(image: CachedNetworkImageProvider("http://mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}")),
+
+                  // Image(image: CachedNetworkImageProvider("https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}")),
                   CachedNetworkImage(
-                      imageUrl: "http://mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}",
+                      imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}",
+
                       placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
                       errorWidget: (context, url, error) => Icon(Icons.error),
                       fit: BoxFit.cover
                   ),
                   // Image(
-                  //   image: NetworkImage("http://mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}"),
+
+                  //   image: NetworkImage("https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}"),
                   //   fit: BoxFit.cover),
                   // child: Image.asset(
-                  //   '${NetworkImage("http://mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}")}',
+                  //   '${NetworkImage("https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${product.uploadName}")}',
+
                   //   fit: BoxFit.cover,
                   // ),
                 ),

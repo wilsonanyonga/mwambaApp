@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:furniture_app/constants.dart';
-import 'package:furniture_app/providers/UserProvider.dart';
-import 'package:furniture_app/screens/details/components/body.dart';
-import 'package:furniture_app/screens/product/products_screen.dart';
+
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:mwamba_app/constants.dart';
+import 'package:mwamba_app/screens/product/products_screen.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
 
 void main() {
   runApp(
@@ -16,6 +18,7 @@ void main() {
       child: MyApp(),
     )
   );
+
 }
 
 class MyApp extends StatelessWidget {

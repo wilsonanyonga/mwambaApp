@@ -1,18 +1,24 @@
 // import 'dart:js';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+// import 'package:downloads_path_provider/downloads_path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:furniture_app/constants.dart';
-import 'package:furniture_app/models/DownModel.dart';
-import 'package:furniture_app/models/HomeModel.dart';
-import 'package:furniture_app/models/SafPostModel.dart';
-import 'package:furniture_app/models/SafVerifyModel.dart';
-import 'package:furniture_app/models/VerifyModel.dart';
+import 'package:mwamba_app/constants.dart';
+import 'package:mwamba_app/models/DownModel.dart';
+import 'package:mwamba_app/models/HomeModel.dart';
+import 'package:mwamba_app/models/SafPostModel.dart';
+import 'package:mwamba_app/models/SafVerifyModel.dart';
+import 'package:mwamba_app/models/VerifyModel.dart';
 import 'package:open_file/open_file.dart';
-// import 'package:furniture_app/models/product.dart';
+// import 'package:mwamba_app/models/product.dart';
 
 // import 'chat_and_add_to_cart.dart';
 // import 'list_of_colors.dart';
@@ -25,6 +31,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:ext_storage/ext_storage.dart';
 
 import 'package:provider/provider.dart';
+
 
 
 /// Simplest possible model, with just one field.
@@ -124,6 +131,7 @@ class DownFile with ChangeNotifier {
   }
 }
 
+
 class Body extends StatefulWidget {
   
   final Result product;
@@ -139,6 +147,8 @@ class Body extends StatefulWidget {
 class _BodyState extends State<Body> {
 
   // final PutModel responseDown;
+  
+
   
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
@@ -200,12 +210,29 @@ class _BodyState extends State<Body> {
   Map<String, dynamic> resultFloorPlan;
   Map<String, dynamic> resultBasic;
   Map<String, dynamic> resultPremium;
+
+  bool _goBack;
+
+  // List<_TaskInfo> _tasks;
+  // List<_ItemHolder> _items;
+  bool _isLoading;
+  bool _permissionReady;
+  String _localPath;
+  ReceivePort _port = ReceivePort();
+
+  
   // @override
   // setState(() {
   //                 buttonStateFloorPlan = true;
   //               });
   @override
   initState() {
+
+    
+
+    // _prepare();
+
+    
     // used for notification
     result = {
       'isSuccess': false,
@@ -228,6 +255,7 @@ class _BodyState extends State<Body> {
       'error': null,
     };
 
+    _goBack = true;
     buttonStateFloorPlan = true;
     Provider.of<DownFile>(context, listen: false).setbuttonStateFloorPlan(true);
     buttonStateBasic = true;
@@ -261,10 +289,12 @@ class _BodyState extends State<Body> {
     isDownloadedBasic = false;
     isDownloadedPremium = false;
 
-    uri = 'http://mwambabuilders.com/mwambaApp/api/uploads/${widget.product.sample}'; // url of the file to be downloaded
-    uriFloorPlan = 'http://mwambabuilders.com/mwambaApp/api/uploads/${widget.product.plan}';
-    uriBasic = 'http://mwambabuilders.com/mwambaApp/api/uploads/${widget.product.basic}';
-    uriPremium = 'http://mwambabuilders.com/mwambaApp/api/uploads/${widget.product.premium}';
+
+    uri = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.sample}'; // url of the file to be downloaded
+    uriFloorPlan = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.plan}';
+    uriBasic = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.basic}';
+    uriPremium = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.premium}';
+
 
     filename = widget.product.sample; // file name that you desire to keep
     filenameFloorPlan = widget.product.plan;
@@ -283,7 +313,58 @@ class _BodyState extends State<Body> {
   //   setstate(){
     
   // }
+  
   }
+
+  @override
+  void dispose() {
+    _unbindBackgroundIsolate();
+    super.dispose();
+  }
+
+  // void _bindBackgroundIsolate() {
+  //   bool isSuccess = IsolateNameServer.registerPortWithName(
+  //       _port.sendPort, 'downloader_send_port');
+  //   if (!isSuccess) {
+  //     _unbindBackgroundIsolate();
+  //     _bindBackgroundIsolate();
+  //     return;
+  //   }
+  //   _port.listen((dynamic data) {
+  //     if (debug) {
+  //       print('UI Isolate Callback: $data');
+  //     }
+  //     String id = data[0];
+  //     DownloadTaskStatus status = data[1];
+  //     int progress = data[2];
+
+  //     if (_tasks != null && _tasks.isNotEmpty) {
+  //       final task = _tasks.firstWhere((task) => task.taskId == id);
+  //       if (task != null) {
+  //         setState(() {
+  //           task.status = status;
+  //           task.progress = progress;
+  //         });
+  //       }
+  //     }
+  //   });
+  // }
+
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    if (debug) {
+      print(
+          'Background Isolate Callback: task ($id) is in status ($status) and process ($progress)');
+    }
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    send.send([id, status, progress]);
+  }
+
   void _buttonTrue() {
     setState(() {
       buttonStateFloorPlan = true;
@@ -361,8 +442,25 @@ class _BodyState extends State<Body> {
     // Dio dio = Dio();
     print('object is through');
     // response = await dio.download("https://www.google.com/", "./xx.html");
-
     
+    // const debug = true;
+    // WidgetsFlutterBinding.ensureInitialized();
+    // await FlutterDownloader.initialize(debug: debug);
+
+    // // _bindBackgroundIsolate();
+
+    // FlutterDownloader.registerCallback(downloadCallback);
+
+    // _isLoading = true;
+    // _permissionReady = false;
+    
+    // String response = await FlutterDownloader.enqueue(
+    //     url: uri,
+    //     savedDir: savePath,
+    //     showNotification: true,
+    //     openFileFromNotification: true);
+
+    // print(response);
 
     try {
       Response response = await dio.download(
@@ -373,6 +471,7 @@ class _BodyState extends State<Body> {
           print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
           print('object prog');
           setState(() {
+            _goBack = false;
             progress = ((rcv / total) * 100).toStringAsFixed(0);
             print('progress');
           });
@@ -380,6 +479,7 @@ class _BodyState extends State<Body> {
 
           if (progress == '100') {
             setState(() {
+              _goBack = true;
               isDownloaded = true;
               directory = savePath;
               // progress = '100';
@@ -423,6 +523,7 @@ class _BodyState extends State<Body> {
     } on DioError catch(e) {
         print('object that i dont know');
         setState(() {
+          _goBack = true;
           isDownloaded = false;
           directory = savePath;
           progress = "-";
@@ -473,12 +574,14 @@ class _BodyState extends State<Body> {
           print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
           print('object prog');
           setState(() {
+            _goBack = false;
             progressFloorPlan = ((rcv / total) * 100).toStringAsFixed(0);
             print('progress');
           });
           Provider.of<DownFile>(context, listen: false).setProgressFloorPlan(((rcv / total) * 100).toStringAsFixed(0));
           if (progressFloorPlan == '100') {
             setState(() {
+              _goBack = true;
               isDownloadedFloorPlan = true;
               directoryFloorPlan = savePath;
               // progress = '100';
@@ -521,6 +624,7 @@ class _BodyState extends State<Body> {
     } on DioError catch(e) {
         print('object that i dont know');
         setState(() {
+          _goBack = true;
           isDownloadedFloorPlan = false;
           directoryFloorPlan = savePath;
           progressFloorPlan = "-";
@@ -570,12 +674,14 @@ class _BodyState extends State<Body> {
           print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
           print('object prog');
           setState(() {
+            _goBack = false;
             progressBasic = ((rcv / total) * 100).toStringAsFixed(0);
             print('progress');
           });
 
           if (progressBasic == '100') {
             setState(() {
+              _goBack = true;
               isDownloadedBasic = true;
               directoryBasic = savePath;
               // progress = '100';
@@ -608,6 +714,7 @@ class _BodyState extends State<Body> {
     } on DioError catch(e) {
         print('object that i dont know');
         setState(() {
+          _goBack = true;
           isDownloadedBasic = false;
           directoryBasic = savePath;
           progressBasic = "-";
@@ -640,7 +747,10 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
   String savePath = await getFilePath(filenamePremium);
 
   // Dio dio = Dio();
-  print('object is through');
+  print('object is through /n');
+  print(uriPremium);
+  print(filenamePremium);
+  print(resultPremium);
   // response = await dio.download("https://www.google.com/", "./xx.html");
 
   
@@ -654,12 +764,14 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
         print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
         print('object prog');
         setState(() {
+          _goBack = false;
           progressPremium = ((rcv / total) * 100).toStringAsFixed(0);
           print('progress');
         });
 
         if (progressPremium == '100') {
           setState(() {
+            _goBack = true;
             isDownloadedPremium = true;
             directoryPremium = savePath;
             // progress = '100';
@@ -692,6 +804,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
   } on DioError catch(e) {
       print('object that i dont know');
       setState(() {
+        _goBack = true;
         isDownloadedPremium = false;
         directoryPremium = savePath;
         progressPremium = "-";
@@ -721,15 +834,27 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
 
   Future<String> getFilePath(uniqueFileName) async {
     String path = '';
-
-    StorageDirectory type = StorageDirectory.downloads;
-    List<Directory> dir = await getExternalStorageDirectories(type: type);
-    // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
-
-    path = '${dir.first.path}/$uniqueFileName';
-    // path = '$dir/$uniqueFileName';
-    print(path);
+    if (await Permission.storage.request().isGranted) {
+      // Either the permission was already granted before or the user just granted it.
+      path = '/storage/emulated/0/Download/$uniqueFileName';
+      // path = '$dir/$uniqueFileName';
+      print(path);
+      
+    }
     return path;
+    // Directory _downloadsDirectory;
+    // StorageDirectory type = StorageDirectory.downloads;
+    // List<Directory> dir = await getExternalStorageDirectories(type: type);
+    // Directory dir = await getExternalStorageDirectory();
+    // Directory dir = await getDownloadsPath();
+    // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
+    // var downloadsDirectory = await DownloadsPathProvider.downloadsDirectory;
+    // path = '${dir.first.path}/$uniqueFileName';
+    // var path = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
+    // path = '/storage/emulated/0/Download/$uniqueFileName';
+    // // path = '$dir/$uniqueFileName';
+    // print(path);
+    // return path;
   }
 
   //gets the applicationDirectory and path for the to-be downloaded file
@@ -738,14 +863,23 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
   Future<String> getFilePathFloorPlan(uniqueFileName) async {
     String path = '';
 
-    StorageDirectory type = StorageDirectory.downloads;
-    List<Directory> dir = await getExternalStorageDirectories(type: type);
-    // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
-
-    path = '${dir.first.path}/$uniqueFileName';
-    // path = '$dir/$uniqueFileName';
-    print(path);
+    if (await Permission.storage.request().isGranted) {
+      // Either the permission was already granted before or the user just granted it.
+      path = '/storage/emulated/0/Download/$uniqueFileName';
+      // path = '$dir/$uniqueFileName';
+      print(path);
+      
+    }
     return path;
+
+    // StorageDirectory type = StorageDirectory.downloads;
+    // List<Directory> dir = await getExternalStorageDirectories(type: type);
+    // // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
+
+    // path = '${dir.first.path}/$uniqueFileName';
+    // // path = '$dir/$uniqueFileName';
+    // print(path);
+    // return path;
   }
 
   
@@ -771,72 +905,90 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
   Widget build(BuildContext context) {
     // it provide us total height and width
     Size size = MediaQuery.of(context).size;
-    // it enable scrolling on small devices
-    return SafeArea(
-      bottom: false,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
-              decoration: BoxDecoration(
-                color: kBackgroundColor,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(50),
-                  bottomRight: Radius.circular(50),
+    // it enable scrolling on small devices ... async => _goBack
+    return new WillPopScope(
+          onWillPop: () async => _goBack ? _goBack : Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Oops!",
+            desc: "Kindly wait a bit as the file is being downloaded.",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "OK I'll Wait",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Center(
-                    child: Hero(
-                      tag: '${widget.product.id}',
-                      child: widget.product.uploadName != null ? ProductPoster(
-                        size: size,
-                        image: widget.product.uploadName,
-                      ): Container(child: Align(child: Text('Data is loading ...'))),
-                    ),
+                onPressed: () => Navigator.pop(context),
+                width: 120,
+              )
+            ],
+          ).show(),
+          child: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+                decoration: BoxDecoration(
+                  color: kBackgroundColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(50),
+                    bottomRight: Radius.circular(50),
                   ),
-                  // ListOfColors(),
-                  freePdf(),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: kDefaultPadding / 2),
-                      child: Text(
-                        widget.product.name,
-                        style: Theme.of(context).textTheme.headline6,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Center(
+                      child: Hero(
+                        tag: '${widget.product.id}',
+                        child: widget.product.uploadName != null ? ProductPoster(
+                          size: size,
+                          image: widget.product.uploadName,
+                        ): Container(child: Align(child: Text('Data is loading ...'))),
                       ),
                     ),
-                  ),
-                  // Text(
-                  //   'Ksh ${product.price}',
-                  //   style: TextStyle(
-                  //     fontSize: 18,
-                  //     fontWeight: FontWeight.w600,
-                  //     color: kSecondaryColor,
-                  //   ),
-                  // ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(vertical: kDefaultPadding / 2),
-                    child: Text(
-                      widget.product.description,
-                      style: TextStyle(color: kTextLightColor),
+                    // ListOfColors(),
+                    freePdf(),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: kDefaultPadding / 2),
+                        child: Text(
+                          widget.product.name,
+                          style: Theme.of(context).textTheme.headline6,
+                        ),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: kDefaultPadding),
-                ],
+                    // Text(
+                    //   'Ksh ${product.price}',
+                    //   style: TextStyle(
+                    //     fontSize: 18,
+                    //     fontWeight: FontWeight.w600,
+                    //     color: kSecondaryColor,
+                    //   ),
+                    // ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: kDefaultPadding / 2),
+                      child: Text(
+                        widget.product.description,
+                        style: TextStyle(color: kTextLightColor),
+                      ),
+                    ),
+                    SizedBox(height: kDefaultPadding),
+                  ],
+                ),
               ),
-            ),
-            // ChatAndAddToCart(),
-            plan500(),
-            buyPlan(),
-            buyCad(),
-          ],
+              // ChatAndAddToCart(),
+              plan500(),
+              buyPlan(),
+              buyCad(),
+            ],
+          ),
         ),
       ),
     );
@@ -867,8 +1019,11 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 children: [
                   Text('$progressBasic%'),
                   isDownloadedBasic ? Text(
-                      'File Downloaded! You can see your file in the application\'s directory \n \n $directoryBasic',
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
                     ) : Text("Click to Buy Plan (.zip) - Ksh ${widget.product.basicAmount}")
+                  // isDownloadedBasic ? Text(
+                  //     'File Downloaded! You can see your file in the Downloads\'s folder \n \n $directoryBasic',
+                  //   ) : Text("Click to Buy Plan (.zip) - Ksh ${widget.product.basicAmount}")
                 ],
               ),
             ),
@@ -890,9 +1045,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             children: [
               Text('$progressBasic%'),
               isDownloadedBasic ? Text(
-                      'File Downloaded! You can see your file in the application\'s directory \n \n $directoryBasic',
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
                     )
-              : Text("Click to Download Floor Plan Ksh ${widget.product.basicAmount}"),
+              : Text("Floor Plan Preview Ksh ${widget.product.basicAmount}"),
             ],
           ),
         ),
@@ -920,7 +1075,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 children: [
                   Text('$progressPremium%'),
                   isDownloadedPremium ? Text(
-                      'File Downloaded! You can see your file in the application\'s directory \n \n $directoryPremium',
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
                     ) : Text("Click to Buy ArchiCAD (Archi) - Ksh ${widget.product.premiumAmount}")
                 ],
               ),
@@ -943,9 +1098,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               children: [
                 Text('$progressPremium%'),
                 isDownloadedPremium ? Text(
-                        'File Downloaded! You can see your file in the application\'s directory \n \n $directoryPremium',
+                        'File Downloaded! You can see your file in the Downloads\'s folder',
                       )
-                : Text("Click to Download Floor Plan Ksh ${widget.product.premiumAmount}"),
+                : Text("Floor Plan Preview Ksh ${widget.product.premiumAmount}"),
               ],
             ),
           ),
@@ -954,6 +1109,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
   }
 
   Widget freePdf() {
+// provider
     // return Container(
     //       margin: EdgeInsets.all(kDefaultPadding),
     //       padding: EdgeInsets.symmetric(
@@ -982,21 +1138,89 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //       ),
           
     //     );
-        return GestureDetector(
+//         return GestureDetector(
           
-          onTap: Provider.of<DownFile>(context).getSetDownload() ?  null : () async{
-            downloadFile(uri, filename, result);
-            // _buttonFalse();
-          },
-          child: Container(
-            margin: EdgeInsets.all(kDefaultPadding),
-            padding: EdgeInsets.symmetric(
-              horizontal: kDefaultPadding,
-              vertical: kDefaultPadding / 2,
+//           onTap: Provider.of<DownFile>(context).getSetDownload() ?  null : () async{
+//             downloadFile(uri, filename, result);
+//             // _buttonFalse();
+//           },
+//           child: Container(
+//             margin: EdgeInsets.all(kDefaultPadding),
+//             padding: EdgeInsets.symmetric(
+//               horizontal: kDefaultPadding,
+//               vertical: kDefaultPadding / 2,
+//             ),
+//             decoration: BoxDecoration(
+//               color: Color(0xFFFCBF1E),
+//               borderRadius: BorderRadius.circular(30),
+
+    return GestureDetector(
+        onTap: () async{
+          Alert(
+            context: context,
+            title: "Other 3D Images",
+            content: Column(
+              children: <Widget>[
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+              ],
             ),
-            decoration: BoxDecoration(
-              color: Color(0xFFFCBF1E),
-              borderRadius: BorderRadius.circular(30),
+            buttons: [
+              DialogButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              )
+            ]).show();
+          // _buttonFalse();
+        },
+        child: Container(
+          margin: EdgeInsets.all(kDefaultPadding),
+          padding: EdgeInsets.symmetric(
+            horizontal: kDefaultPadding,
+            vertical: kDefaultPadding / 2,
+          ),
+          decoration: BoxDecoration(
+            color: Color(0xFFFCBF1E),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Center(
+            child: Column(
+              children: [
+                
+                Text("View 3D Photos"),
+              ],
+
             ),
             child: Center(
               child: Column(
@@ -1016,8 +1240,13 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             ),
             
           ),
-        );
+//  provider
+//         );
    
+
+        ),);
+
+
     // return Container(
     //   child: isDownloaded ? 
     //   Container(
@@ -1035,9 +1264,15 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //           children: [
     //             Text('$progress%'),
     //             isDownloaded ? Text(
-    //                     'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
+
+    //                     'File Downloaded! You can see your file in the Download\'s folder',
     //                   )
-    //                 : Text("Click to Download Sample Pictures"),
+    //                 : Text("View 3D Photos"),
+    //             // isDownloaded ? Text(
+    //             //         'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
+    //             //       )
+    //             //     : Text("View 3D Photos"),
+
     //           ],
     //         ),
     //       ),
@@ -1063,9 +1298,11 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //           children: [
     //             Text('$progress%'),
     //             isDownloaded ? Text(
-    //                     'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
+
+    //                     'File Downloaded! You can see your file in the Downloads\'s folder',
     //                   )
-    //                 : Text("Click to Download Sample Pictures"),
+    //                 : Text("View 3D Photos"),
+
     //           ],
     //         ),
     //       ),
@@ -1091,16 +1328,22 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
         child: Center(
           child: Column(
             children: [
-              // Text('$progressFloorPlan%'),
-              Text('${Provider.of<DownFile>(context).getSetProgressFloorPlan()}%'),
-              // isDownloadedFloorPlan ? Text(
-              //         'File Downloaded! You can see your file in the application\'s directory \n \n ${Provider.of<DownFile>(context).getSetDirectoryFloorPlan()}',
-              //       )
-              // : Text("Click to Download Floor Plan Ksh ${widget.product.planAmount}"),
-              Provider.of<DownFile>(context).getSetDownloadFloorPlan() ? Text(
-                      'File Downloaded! You can see your file in the application\'s directory \n \n ${Provider.of<DownFile>(context).getSetDirectoryFloorPlan()}',
+// <<<<<<< provider
+//               // Text('$progressFloorPlan%'),
+//               Text('${Provider.of<DownFile>(context).getSetProgressFloorPlan()}%'),
+//               // isDownloadedFloorPlan ? Text(
+//               //         'File Downloaded! You can see your file in the application\'s directory \n \n ${Provider.of<DownFile>(context).getSetDirectoryFloorPlan()}',
+//               //       )
+//               // : Text("Click to Download Floor Plan Ksh ${widget.product.planAmount}"),
+//               Provider.of<DownFile>(context).getSetDownloadFloorPlan() ? Text(
+//                       'File Downloaded! You can see your file in the application\'s directory \n \n ${Provider.of<DownFile>(context).getSetDirectoryFloorPlan()}',
+// =======
+              Text('$progressFloorPlan%'),
+              isDownloadedFloorPlan ? Text(
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
+
                     )
-              : Text("Click to Download Floor Plan Ksh ${widget.product.planAmount}"),
+              : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
             ],
           ),
         ),
@@ -1109,27 +1352,28 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     ); 
     // :
     
-    //   Container(
-    //     margin: EdgeInsets.all(kDefaultPadding),
-    //     padding: EdgeInsets.symmetric(
-    //       horizontal: kDefaultPadding,
-    //       vertical: kDefaultPadding / 2,
-    //     ),
-    //     decoration: BoxDecoration(
-    //       color: Color(0xFFFCBF1E),
-    //       borderRadius: BorderRadius.circular(30),
-    //     ),
-    //     child: Center(
-    //       child: Column(
-    //         children: [
-    //           Text('$progressFloorPlan%'),
-    //           isDownloadedFloorPlan ? Text(
-    //                   'File Downloaded! You can see your file in the application\'s directory \n \n $directoryFloorPlan',
-    //                 )
-    //           : Text("Click to Download Floor Plan Ksh ${widget.product.planAmount}"),
-    //         ],
-    //       ),
-    //     ),
+
+      Container(
+        margin: EdgeInsets.all(kDefaultPadding),
+        padding: EdgeInsets.symmetric(
+          horizontal: kDefaultPadding,
+          vertical: kDefaultPadding / 2,
+        ),
+        decoration: BoxDecoration(
+          color: Color(0xFFFCBF1E),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Center(
+          child: Column(
+            children: [
+              Text('$progressFloorPlan%'),
+              isDownloadedFloorPlan ? Text(
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
+                    )
+              : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
+            ],
+          ),
+        ),
         
     //   );
   }
@@ -1175,11 +1419,11 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               controller: _controllerPhone,
               decoration: InputDecoration(
                 icon: Icon(Icons.phone),
-                labelText: 'Phone Number (254 712 345 678)',
+                labelText: 'Phone Number (0712345678)',
                 // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
               ),
               inputFormatters: <TextInputFormatter>[
-                  LengthLimitingTextInputFormatter(12),
+                  LengthLimitingTextInputFormatter(10),
                   WhitelistingTextInputFormatter.digitsOnly,
                   
                 ],
@@ -1208,25 +1452,25 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             color: Colors.red,
           ),
 
-          DialogButton(
-            child: buttonStateFloorPlan ? Text(
-              "Test",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ) : Text(
-              "No",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () async{
-              // _buttonFalse();
-              setState(() {
-                buttonStateFloorPlan = false;
-              });
-              Navigator.of(context, rootNavigator: true).pop();
-              _show500();
-            },
-            // color: Color.fromRGBO(240, 9, 4, 1.0),
-            color: Colors.red,
-          ),
+          // DialogButton(
+          //   child: buttonStateFloorPlan ? Text(
+          //     "Test",
+          //     style: TextStyle(color: Colors.white, fontSize: 20),
+          //   ) : Text(
+          //     "No",
+          //     style: TextStyle(color: Colors.white, fontSize: 20),
+          //   ),
+          //   onPressed: () async{
+          //     // _buttonFalse();
+          //     setState(() {
+          //       buttonStateFloorPlan = false;
+          //     });
+          //     Navigator.of(context, rootNavigator: true).pop();
+          //     _show500();
+          //   },
+          //   // color: Color.fromRGBO(240, 9, 4, 1.0),
+          //   color: Colors.red,
+          // ),
           
           DialogButton(
             onPressed: () async{
@@ -1244,7 +1488,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               print(buttonStateFloorPlan);
               print("button pressed");
               // _success();
-              Response responsePhone = await dio.post("http://mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+
+              Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+
               
               SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1310,11 +1556,11 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               controller: _controllerPhone,
               decoration: InputDecoration(
                 icon: Icon(Icons.phone),
-                labelText: 'Phone Number (254 712 345 678)',
+                labelText: 'Phone Number (0712345678)',
                 // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
               ),
               inputFormatters: <TextInputFormatter>[
-                  LengthLimitingTextInputFormatter(12),
+                  LengthLimitingTextInputFormatter(10),
                   WhitelistingTextInputFormatter.digitsOnly,
                   
                 ],
@@ -1374,7 +1620,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               // print(buttonStateFloorPlan);
               // print("button pressed");
               // // _success();
-              // Response responsePhone = await dio.post("http://mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+
+              // Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+
               
               // SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1435,11 +1683,11 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               controller: _controllerPhoneBasic,
               decoration: InputDecoration(
                 icon: Icon(Icons.phone),
-                labelText: 'Phone Number (254 712 345 678)',
+                labelText: 'Phone Number (0712345678)',
                 // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
               ),
               inputFormatters: <TextInputFormatter>[
-                  LengthLimitingTextInputFormatter(12),
+                  LengthLimitingTextInputFormatter(10),
                   WhitelistingTextInputFormatter.digitsOnly,
                   
                 ],
@@ -1478,7 +1726,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 print(buttonStateBasic);
                 print("button pressed");
                 // _success();
-                Response responsePhone = await dio.post("http://mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhoneBasic.text});
+
+                Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhoneBasic.text});
+
                 
                 SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1526,14 +1776,14 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 // onChanged: (value) {
                 //   Provider.of<AddTruckProvider>(context).setMessage2(null);
                 // },
-                // controller: _controllerPhone,
+                controller: _controllerPhoneBasic,
                 decoration: InputDecoration(
                   icon: Icon(Icons.phone),
-                  labelText: 'Phone Number (254 712 345 678)',
+                  labelText: 'Phone Number (0712345678)',
                   // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
                 ),
                 inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(12),
+                    LengthLimitingTextInputFormatter(10),
                     WhitelistingTextInputFormatter.digitsOnly,
                     
                   ],
@@ -1590,11 +1840,11 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
               controller: _controllerPhonePremium,
               decoration: InputDecoration(
                 icon: Icon(Icons.phone),
-                labelText: 'Phone Number (254 712 345 678)',
+                labelText: 'Phone Number (0712345678)',
                 // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
               ),
               inputFormatters: <TextInputFormatter>[
-                  LengthLimitingTextInputFormatter(12),
+                  LengthLimitingTextInputFormatter(10),
                   WhitelistingTextInputFormatter.digitsOnly,
                   
                 ],
@@ -1633,7 +1883,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 print(buttonStatePremium);
                 print("button pressed");
                 // _success();
-                Response responsePhone = await dio.post("http://mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhonePremium.text});
+
+                Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhonePremium.text});
+
                 
                 SafPostModel res = SafPostModel.fromJson(responsePhone.data);
 
@@ -1684,11 +1936,11 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 // controller: _controllerPhone,
                 decoration: InputDecoration(
                   icon: Icon(Icons.phone),
-                  labelText: 'Phone Number (254 712 345 678)',
+                  labelText: 'Phone Number (0712345678)',
                   // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
                 ),
                 inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(12),
+                    LengthLimitingTextInputFormatter(10),
                     WhitelistingTextInputFormatter.digitsOnly,
                     
                   ],
@@ -1748,7 +2000,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verify();
-            Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
+            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
@@ -1793,7 +2047,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
+            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {
@@ -1834,8 +2090,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verifyBasic();
-            Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
-            
+
+            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
             //   checkoutRequestId = "";
@@ -1879,7 +2136,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
+            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {
@@ -1920,7 +2179,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
             });
             Navigator.of(context, rootNavigator: true).pop();
             _verifyPremium();
-            Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
+            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // setState(() {
@@ -1965,7 +2226,9 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           // checReq = checkoutRequestId,
           onPressed: () async{
             // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("http://mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
+            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
             
             // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
             // // setState(() {
@@ -1991,7 +2254,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           context: context,
           type: AlertType.success,
           title: "Transaction Successful \n \n $progressFloorPlan%",
-          desc: isDownloadedFloorPlan ? 'File Downloaded! You can see your file in the application\'s directory \n \n $directoryFloorPlan' : "Click Button To Download.",
+          desc: isDownloadedFloorPlan ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
           buttons: [
             DialogButton(
               child: Row(
@@ -2022,7 +2285,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           context: context,
           type: AlertType.success,
           title: "File is Downloading",
-          desc: isDownloadedFloorPlan ? 'File Downloaded! You can see your file in the application\'s directory \n \n $directoryFloorPlan' : "Close Dialogs To View Download.",
+          desc: isDownloadedFloorPlan ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
           buttons: [
             DialogButton(
               child: Column(
@@ -2054,7 +2317,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           context: context,
           type: AlertType.success,
           title: "Transaction Successful \n \n $progressBasic%",
-          desc: isDownloadedBasic ? 'File Downloaded! You can see your file in the application\'s directory \n \n $directoryFloorPlan' : "Click Button To Download.",
+          desc: isDownloadedBasic ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
           buttons: [
             DialogButton(
               child: Row(
@@ -2085,7 +2348,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           context: context,
           type: AlertType.success,
           title: "File is Downloading",
-          desc: isDownloadedBasic ? 'File Downloaded! You can see your file in the application\'s directory \n \n $directoryFloorPlan' : "Close Dialogs To View Download.",
+          desc: isDownloadedBasic ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
           buttons: [
             DialogButton(
               child: Column(
@@ -2117,7 +2380,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           context: context,
           type: AlertType.success,
           title: "Transaction Successful \n \n $progressPremium%",
-          desc: isDownloadedPremium ? 'File Downloaded! You can see your file in the application\'s directory \n \n $directoryPremium' : "Click Button To Download.",
+          desc: isDownloadedPremium ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
           buttons: [
             DialogButton(
               child: Row(
@@ -2148,7 +2411,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
           context: context,
           type: AlertType.success,
           title: "File is Downloading",
-          desc: isDownloadedPremium ? 'File Downloaded! You can see your file in the application\'s directory \n \n $directoryPremium' : "Close Dialogs To View Download.",
+          desc: isDownloadedPremium ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
           buttons: [
             DialogButton(
               child: Column(

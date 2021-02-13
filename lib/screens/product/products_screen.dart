@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:furniture_app/constants.dart';
+import 'package:mwamba_app/constants.dart';
 
 import 'components/body.dart';
 

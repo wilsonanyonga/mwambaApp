@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:furniture_app/constants.dart';
-import 'package:furniture_app/models/HomeModel.dart';
-import 'package:furniture_app/models/product.dart';
+import 'package:mwamba_app/constants.dart';
+import 'package:mwamba_app/models/HomeModel.dart';
+import 'package:mwamba_app/models/product.dart';
 
 import 'components/body.dart';
 
@@ -14,7 +14,7 @@ class DetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kPrimaryColor,
-      appBar: buildAppBar(context),
+      // appBar: buildAppBar(context),
       body: Body(
         product: product,
       ),
