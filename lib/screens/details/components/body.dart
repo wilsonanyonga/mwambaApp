@@ -6,6 +6,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:mwamba_app/screens/details/components/transactionsMobile.dart';
 // import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
@@ -33,28 +34,23 @@ import 'package:ext_storage/ext_storage.dart';
 import 'package:provider/provider.dart';
 
 const debug = true;
+
 class Body extends StatefulWidget {
-  
   final Result product;
 
   const Body({Key key, this.product}) : super(key: key);
-  
+
   @override
   _BodyState createState() => _BodyState();
-
-  
 }
 
 class _BodyState extends State<Body> {
-
   // final PutModel responseDown;
-  
 
-  
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   String checkoutRequestId;
-  
+
   bool downloading;
   bool downloadingFloorPlan;
   bool downloadingBasic;
@@ -105,8 +101,6 @@ class _BodyState extends State<Body> {
   bool buttonBasicVerifyDownload;
   bool buttonPremiumVerifyDownload;
 
-  
-
   Map<String, dynamic> result;
   Map<String, dynamic> resultFloorPlan;
   Map<String, dynamic> resultBasic;
@@ -121,19 +115,14 @@ class _BodyState extends State<Body> {
   String _localPath;
   ReceivePort _port = ReceivePort();
 
-  
   // @override
   // setState(() {
   //                 buttonStateFloorPlan = true;
   //               });
   @override
   initState() {
-
-    
-
     // _prepare();
 
-    
     // used for notification
     result = {
       'isSuccess': false,
@@ -184,10 +173,14 @@ class _BodyState extends State<Body> {
     isDownloadedBasic = false;
     isDownloadedPremium = false;
 
-    uri = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.sample}'; // url of the file to be downloaded
-    uriFloorPlan = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.plan}';
-    uriBasic = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.basic}';
-    uriPremium = 'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.premium}';
+    uri =
+        'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.sample}'; // url of the file to be downloaded
+    uriFloorPlan =
+        'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.plan}';
+    uriBasic =
+        'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.basic}';
+    uriPremium =
+        'https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.premium}';
 
     filename = widget.product.sample; // file name that you desire to keep
     filenameFloorPlan = widget.product.plan;
@@ -200,13 +193,13 @@ class _BodyState extends State<Body> {
     final iOS = IOSInitializationSettings();
     final initSettings = InitializationSettings(android, iOS);
 
-    flutterLocalNotificationsPlugin.initialize(initSettings, onSelectNotification: _onSelectNotification);
+    flutterLocalNotificationsPlugin.initialize(initSettings,
+        onSelectNotification: _onSelectNotification);
 
     super.initState();
-  //   setstate(){
-    
-  // }
-  
+    //   setstate(){
+
+    // }
   }
 
   @override
@@ -270,32 +263,28 @@ class _BodyState extends State<Body> {
     });
     // StatefulBuilder(
     //   builder: (BuildContext context, StateSetter setState){
-        
+
     //   });
-    
   }
 
   // this function is used in the notification
   Future<void> _showNotification(Map<String, dynamic> downloadStatus) async {
     final android = AndroidNotificationDetails(
-      'channel id',
-      'channel name',
-      'channel description',
-      priority: Priority.High,
-      importance: Importance.Max
-    );
+        'channel id', 'channel name', 'channel description',
+        priority: Priority.High, importance: Importance.Max);
     final iOS = IOSNotificationDetails();
     final platform = NotificationDetails(android, iOS);
     final json = jsonEncode(downloadStatus);
     final isSuccess = downloadStatus['isSuccess'];
 
     await flutterLocalNotificationsPlugin.show(
-      0, // notification id
-      isSuccess ? 'Success' : 'Failure',
-      isSuccess ? 'File has been downloaded successfully!' : 'There was an error while downloading the file.',
-      platform,
-      payload: json
-    );
+        0, // notification id
+        isSuccess ? 'Success' : 'Failure',
+        isSuccess
+            ? 'File has been downloaded successfully!'
+            : 'There was an error while downloading the file.',
+        platform,
+        payload: json);
   }
 
   // notification future
@@ -334,7 +323,7 @@ class _BodyState extends State<Body> {
     // Dio dio = Dio();
     print('object is through');
     // response = await dio.download("https://www.google.com/", "./xx.html");
-    
+
     // const debug = true;
     // WidgetsFlutterBinding.ensureInitialized();
     // await FlutterDownloader.initialize(debug: debug);
@@ -345,7 +334,7 @@ class _BodyState extends State<Body> {
 
     // _isLoading = true;
     // _permissionReady = false;
-    
+
     // String response = await FlutterDownloader.enqueue(
     //     url: uri,
     //     savedDir: savePath,
@@ -360,7 +349,8 @@ class _BodyState extends State<Body> {
         savePath,
         onReceiveProgress: (rcv, total) {
           print(total);
-          print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
+          print(
+              'received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
           print('object prog');
           setState(() {
             _goBack = false;
@@ -384,9 +374,9 @@ class _BodyState extends State<Body> {
       //   PutModel res = PutModel.fromJson(response.data);
       //   print(res.code);
       // } catch (e) {
-        
+
       // }
-      
+
       result['isSuccess'] = response.statusCode == 200;
       // result['filePath'] = '${dir.first.path}';
       result['filePath'] = savePath;
@@ -394,41 +384,37 @@ class _BodyState extends State<Body> {
       // List<Directory> dir = await getExternalStorageDirectories(type: type);
       // // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
 
-      
-      
-
       // var so = PutModel.fromJson(jsonDecode(response.data));
       // var some = response;
       // print(response.data);
-    } on DioError catch(e) {
-        print('object that i dont know');
-        setState(() {
-          _goBack = true;
-          isDownloaded = false;
-          directory = savePath;
-          progress = "-";
-          // progress = '100';
-        });
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx and is also not 304.
-        if(e.response != null) {
-            print(e.response.data);
-            print(e.response.headers);
-            print(e.response.request);
-        } else{
-            // Something happened in setting up or sending the request that triggered an Error
-            print(e.request);
-            print(e.message);
-        }
+    } on DioError catch (e) {
+      print('object that i dont know');
+      setState(() {
+        _goBack = true;
+        isDownloaded = false;
+        directory = savePath;
+        progress = "-";
+        // progress = '100';
+      });
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.response != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
     } finally {
       // await _showNotification(result);
     }
-    
-    
   }
 
   // downloading logic for floorPlan is handled by this method
-  Future<void> downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan) async {
+  Future<void> downloadFileFloorPlan(
+      uriFloorPlan, filenameFloorPlan, resultFloorPlan) async {
     setState(() {
       isDownloadedFloorPlan = true;
     });
@@ -439,15 +425,14 @@ class _BodyState extends State<Body> {
     print('object is through');
     // response = await dio.download("https://www.google.com/", "./xx.html");
 
-    
-
     try {
       Response response = await dio.download(
         uriFloorPlan,
         savePath,
         onReceiveProgress: (rcv, total) {
           print(total);
-          print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
+          print(
+              'received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
           print('object prog');
           setState(() {
             _goBack = false;
@@ -471,9 +456,9 @@ class _BodyState extends State<Body> {
       //   PutModel res = PutModel.fromJson(response.data);
       //   print(res.code);
       // } catch (e) {
-        
+
       // }
-      
+
       result['isSuccess'] = response.statusCode == 200;
       // result['filePath'] = '${dir.first.path}';
       result['filePath'] = savePath;
@@ -481,37 +466,32 @@ class _BodyState extends State<Body> {
       // List<Directory> dir = await getExternalStorageDirectories(type: type);
       // // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
 
-      
-      
-
       // var so = PutModel.fromJson(jsonDecode(response.data));
       // var some = response;
       // print(response.data);
-    } on DioError catch(e) {
-        print('object that i dont know');
-        setState(() {
-          _goBack = true;
-          isDownloadedFloorPlan = false;
-          directoryFloorPlan = savePath;
-          progressFloorPlan = "-";
-          // progress = '100';
-        });
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx and is also not 304.
-        if(e.response != null) {
-            print(e.response.data);
-            print(e.response.headers);
-            print(e.response.request);
-        } else{
-            // Something happened in setting up or sending the request that triggered an Error
-            print(e.request);
-            print(e.message);
-        }
+    } on DioError catch (e) {
+      print('object that i dont know');
+      setState(() {
+        _goBack = true;
+        isDownloadedFloorPlan = false;
+        directoryFloorPlan = savePath;
+        progressFloorPlan = "-";
+        // progress = '100';
+      });
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.response != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
     } finally {
       // await _showNotification(result);
     }
-    
-    
   }
 
   // downloading logic for floorPlan is handled by this method
@@ -526,15 +506,14 @@ class _BodyState extends State<Body> {
     print('object is through');
     // response = await dio.download("https://www.google.com/", "./xx.html");
 
-    
-
     try {
       Response response = await dio.download(
         uriBasic,
         savePath,
         onReceiveProgress: (rcv, total) {
           print(total);
-          print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
+          print(
+              'received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
           print('object prog');
           setState(() {
             _goBack = false;
@@ -558,9 +537,9 @@ class _BodyState extends State<Body> {
       //   PutModel res = PutModel.fromJson(response.data);
       //   print(res.code);
       // } catch (e) {
-        
+
       // }
-      
+
       result['isSuccess'] = response.statusCode == 200;
       // result['filePath'] = '${dir.first.path}';
       result['filePath'] = savePath;
@@ -568,103 +547,95 @@ class _BodyState extends State<Body> {
       // List<Directory> dir = await getExternalStorageDirectories(type: type);
       // // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
 
-      
-      
+      // var so = PutModel.fromJson(jsonDecode(response.data));
+      // var some = response;
+      // print(response.data);
+    } on DioError catch (e) {
+      print('object that i dont know');
+      setState(() {
+        _goBack = true;
+        isDownloadedBasic = false;
+        directoryBasic = savePath;
+        progressBasic = "-";
+        // progress = '100';
+      });
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.response != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    } finally {
+      // await _showNotification(result);
+    }
+  }
+
+// downloading logic for floorPlan is handled by this method
+  Future<void> downloadFilePremium(
+      uriPremium, filenamePremium, resultPremium) async {
+    setState(() {
+      isDownloadedPremium = true;
+    });
+
+    String savePath = await getFilePath(filenamePremium);
+
+    // Dio dio = Dio();
+    print('object is through /n');
+    print(uriPremium);
+    print(filenamePremium);
+    print(resultPremium);
+    // response = await dio.download("https://www.google.com/", "./xx.html");
+
+    try {
+      Response response = await dio.download(
+        uriPremium,
+        savePath,
+        onReceiveProgress: (rcv, total) {
+          print(total);
+          print(
+              'received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
+          print('object prog');
+          setState(() {
+            _goBack = false;
+            progressPremium = ((rcv / total) * 100).toStringAsFixed(0);
+            print('progress');
+          });
+
+          if (progressPremium == '100') {
+            setState(() {
+              _goBack = true;
+              isDownloadedPremium = true;
+              directoryPremium = savePath;
+              // progress = '100';
+            });
+          } else if (double.parse(progressPremium) < 100) {}
+        },
+        deleteOnError: true,
+      );
+      // handling the notification
+      // try {
+      //   PutModel res = PutModel.fromJson(response.data);
+      //   print(res.code);
+      // } catch (e) {
+
+      // }
+
+      result['isSuccess'] = response.statusCode == 200;
+      // result['filePath'] = '${dir.first.path}';
+      result['filePath'] = savePath;
+      // StorageDirectory type = StorageDirectory.downloads;
+      // List<Directory> dir = await getExternalStorageDirectories(type: type);
+      // // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
 
       // var so = PutModel.fromJson(jsonDecode(response.data));
       // var some = response;
       // print(response.data);
-    } on DioError catch(e) {
-        print('object that i dont know');
-        setState(() {
-          _goBack = true;
-          isDownloadedBasic = false;
-          directoryBasic = savePath;
-          progressBasic = "-";
-          // progress = '100';
-        });
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx and is also not 304.
-        if(e.response != null) {
-            print(e.response.data);
-            print(e.response.headers);
-            print(e.response.request);
-        } else{
-            // Something happened in setting up or sending the request that triggered an Error
-            print(e.request);
-            print(e.message);
-        }
-    } finally {
-      // await _showNotification(result);
-    }
-    
-    
-  }
-
-// downloading logic for floorPlan is handled by this method
-Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) async {
-  setState(() {
-    isDownloadedPremium = true;
-  });
-
-  String savePath = await getFilePath(filenamePremium);
-
-  // Dio dio = Dio();
-  print('object is through /n');
-  print(uriPremium);
-  print(filenamePremium);
-  print(resultPremium);
-  // response = await dio.download("https://www.google.com/", "./xx.html");
-
-  
-
-  try {
-    Response response = await dio.download(
-      uriPremium,
-      savePath,
-      onReceiveProgress: (rcv, total) {
-        print(total);
-        print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
-        print('object prog');
-        setState(() {
-          _goBack = false;
-          progressPremium = ((rcv / total) * 100).toStringAsFixed(0);
-          print('progress');
-        });
-
-        if (progressPremium == '100') {
-          setState(() {
-            _goBack = true;
-            isDownloadedPremium = true;
-            directoryPremium = savePath;
-            // progress = '100';
-          });
-        } else if (double.parse(progressPremium) < 100) {}
-      },
-      deleteOnError: true,
-    );
-    // handling the notification
-    // try {
-    //   PutModel res = PutModel.fromJson(response.data);
-    //   print(res.code);
-    // } catch (e) {
-      
-    // }
-    
-    result['isSuccess'] = response.statusCode == 200;
-    // result['filePath'] = '${dir.first.path}';
-    result['filePath'] = savePath;
-    // StorageDirectory type = StorageDirectory.downloads;
-    // List<Directory> dir = await getExternalStorageDirectories(type: type);
-    // // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
-
-    
-    
-
-    // var so = PutModel.fromJson(jsonDecode(response.data));
-    // var some = response;
-    // print(response.data);
-  } on DioError catch(e) {
+    } on DioError catch (e) {
       print('object that i dont know');
       setState(() {
         _goBack = true;
@@ -675,21 +646,19 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
       });
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
-      if(e.response != null) {
-          print(e.response.data);
-          print(e.response.headers);
-          print(e.response.request);
-      } else{
-          // Something happened in setting up or sending the request that triggered an Error
-          print(e.request);
-          print(e.message);
+      if (e.response != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
       }
-  } finally {
-    // await _showNotification(result);
+    } finally {
+      // await _showNotification(result);
+    }
   }
-  
-  
-}
 
   //gets the applicationDirectory and path for the to-be downloaded file
 
@@ -702,7 +671,6 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
       path = '/storage/emulated/0/Download/$uniqueFileName';
       // path = '$dir/$uniqueFileName';
       print(path);
-      
     }
     return path;
     // Directory _downloadsDirectory;
@@ -731,7 +699,6 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
       path = '/storage/emulated/0/Download/$uniqueFileName';
       // path = '$dir/$uniqueFileName';
       print(path);
-      
     }
     return path;
 
@@ -744,8 +711,6 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     // print(path);
     // return path;
   }
-
-  
 
   // void _getFree(){
   //   HomeReq().homeReq().then((following) {
@@ -770,23 +735,25 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     Size size = MediaQuery.of(context).size;
     // it enable scrolling on small devices ... async => _goBack
     return new WillPopScope(
-          onWillPop: () async => _goBack ? _goBack : Alert(
-            context: context,
-            type: AlertType.info,
-            title: "Oops!",
-            desc: "Kindly wait a bit as the file is being downloaded.",
-            buttons: [
-              DialogButton(
-                child: Text(
-                  "OK I'll Wait",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                onPressed: () => Navigator.pop(context),
-                width: 120,
-              )
-            ],
-          ).show(),
-          child: SafeArea(
+      onWillPop: () async => _goBack
+          ? _goBack
+          : Alert(
+              context: context,
+              type: AlertType.info,
+              title: "Oops!",
+              desc: "Kindly wait a bit as the file is being downloaded.",
+              buttons: [
+                DialogButton(
+                  child: Text(
+                    "OK I'll Wait",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  width: 120,
+                )
+              ],
+            ).show(),
+      child: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
           child: Column(
@@ -808,10 +775,14 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                     Center(
                       child: Hero(
                         tag: '${widget.product.id}',
-                        child: widget.product.uploadName != null ? ProductPoster(
-                          size: size,
-                          image: widget.product.uploadName,
-                        ): Container(child: Align(child: Text('Data is loading ...'))),
+                        child: widget.product.uploadName != null
+                            ? ProductPoster(
+                                size: size,
+                                image: widget.product.uploadName,
+                              )
+                            : Container(
+                                child:
+                                    Align(child: Text('Data is loading ...'))),
                       ),
                     ),
                     // ListOfColors(),
@@ -855,160 +826,172 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
         ),
       ),
     );
-
-    
   }
 
-  
-  
-
   Widget buyPlan() {
-    return buttonBasicDownload ? GestureDetector(
-          onTap: _showPlan,
-          child: Container(
+    return buttonBasicDownload
+        ? GestureDetector(
+            onTap: _showPlan,
+            child: Container(
+              margin: EdgeInsets.all(kDefaultPadding),
+              padding: EdgeInsets.symmetric(
+                horizontal: kDefaultPadding,
+                vertical: kDefaultPadding / 2,
+              ),
+              decoration: BoxDecoration(
+                // color: Color(0xFFFCBF1E),
+                color: Colors.pink[300],
+                // color: Color.fromRGBO( 199, 0, 57, .2),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Center(
+                child: Column(
+                  children: [
+                    Text('$progressBasic%'),
+                    isDownloadedBasic
+                        ? Text(
+                            'File Downloaded! You can see your file in the Downloads\'s folder',
+                          )
+                        : Text(
+                            "Click to Buy Plan (.zip) - Ksh ${widget.product.basicAmount}")
+                    // isDownloadedBasic ? Text(
+                    //     'File Downloaded! You can see your file in the Downloads\'s folder \n \n $directoryBasic',
+                    //   ) : Text("Click to Buy Plan (.zip) - Ksh ${widget.product.basicAmount}")
+                  ],
+                ),
+              ),
+            ),
+          )
+        : Container(
             margin: EdgeInsets.all(kDefaultPadding),
             padding: EdgeInsets.symmetric(
               horizontal: kDefaultPadding,
               vertical: kDefaultPadding / 2,
             ),
             decoration: BoxDecoration(
-              // color: Color(0xFFFCBF1E),
               color: Colors.pink[300],
-              // color: Color.fromRGBO( 199, 0, 57, .2),
               borderRadius: BorderRadius.circular(30),
             ),
             child: Center(
               child: Column(
                 children: [
                   Text('$progressBasic%'),
-                  isDownloadedBasic ? Text(
-                      'File Downloaded! You can see your file in the Downloads\'s folder',
-                    ) : Text("Click to Buy Plan (.zip) - Ksh ${widget.product.basicAmount}")
-                  // isDownloadedBasic ? Text(
-                  //     'File Downloaded! You can see your file in the Downloads\'s folder \n \n $directoryBasic',
-                  //   ) : Text("Click to Buy Plan (.zip) - Ksh ${widget.product.basicAmount}")
+                  isDownloadedBasic
+                      ? Text(
+                          'File Downloaded! You can see your file in the Downloads\'s folder',
+                        )
+                      : Text(
+                          "Floor Plan Preview Ksh ${widget.product.basicAmount}"),
                 ],
               ),
             ),
-            
-          ),
-    ) :
-    Container(
-        margin: EdgeInsets.all(kDefaultPadding),
-        padding: EdgeInsets.symmetric(
-          horizontal: kDefaultPadding,
-          vertical: kDefaultPadding / 2,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.pink[300],
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Center(
-          child: Column(
-            children: [
-              Text('$progressBasic%'),
-              isDownloadedBasic ? Text(
-                      'File Downloaded! You can see your file in the Downloads\'s folder',
-                    )
-              : Text("Floor Plan Preview Ksh ${widget.product.basicAmount}"),
-            ],
-          ),
-        ),
-        
-      );
+          );
   }
 
   Widget buyCad() {
-    return buttonPremiumDownload ? GestureDetector(
-          onTap: _showCad,
-          child: Container(
+    return buttonPremiumDownload
+        ? GestureDetector(
+            onTap: _showCad,
+            child: Container(
+              margin: EdgeInsets.all(kDefaultPadding),
+              padding: EdgeInsets.symmetric(
+                horizontal: kDefaultPadding,
+                vertical: kDefaultPadding / 2,
+              ),
+              decoration: BoxDecoration(
+                // color: Color(0xFFFCBF1E),
+                color: Colors.green[300],
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Center(
+                child: Column(
+                  children: [
+                    Text('$progressPremium%'),
+                    isDownloadedPremium
+                        ? Text(
+                            'File Downloaded! You can see your file in the Downloads\'s folder',
+                          )
+                        : Text(
+                            "Click to Buy ArchiCAD (Archi) - Ksh ${widget.product.premiumAmount}")
+                  ],
+                ),
+              ),
+            ),
+          )
+        : Container(
             margin: EdgeInsets.all(kDefaultPadding),
             padding: EdgeInsets.symmetric(
               horizontal: kDefaultPadding,
               vertical: kDefaultPadding / 2,
             ),
             decoration: BoxDecoration(
-              // color: Color(0xFFFCBF1E),
               color: Colors.green[300],
               borderRadius: BorderRadius.circular(30),
             ),
             child: Center(
-              
               child: Column(
                 children: [
                   Text('$progressPremium%'),
-                  isDownloadedPremium ? Text(
-                      'File Downloaded! You can see your file in the Downloads\'s folder',
-                    ) : Text("Click to Buy ArchiCAD (Archi) - Ksh ${widget.product.premiumAmount}")
+                  isDownloadedPremium
+                      ? Text(
+                          'File Downloaded! You can see your file in the Downloads\'s folder',
+                        )
+                      : Text(
+                          "Floor Plan Preview Ksh ${widget.product.premiumAmount}"),
                 ],
               ),
             ),
-            
-          ),
-        ) : 
-        Container(
-          margin: EdgeInsets.all(kDefaultPadding),
-          padding: EdgeInsets.symmetric(
-            horizontal: kDefaultPadding,
-            vertical: kDefaultPadding / 2,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.green[300],
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Center(
-            child: Column(
-              children: [
-                Text('$progressPremium%'),
-                isDownloadedPremium ? Text(
-                        'File Downloaded! You can see your file in the Downloads\'s folder',
-                      )
-                : Text("Floor Plan Preview Ksh ${widget.product.premiumAmount}"),
-              ],
-            ),
-          ),
-          
-        );
+          );
   }
 
   Widget freePdf() {
     return GestureDetector(
-        onTap: () async{
-          Alert(
+      onTap: () async {
+        Alert(
             context: context,
             title: "Other 3D Images",
             content: Column(
               children: <Widget>[
                 CachedNetworkImage(
-                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
-                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    imageUrl:
+                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
                     errorWidget: (context, url, error) => Icon(Icons.error),
-                    fit: BoxFit.cover
-                ),
+                    fit: BoxFit.cover),
                 CachedNetworkImage(
-                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
-                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    imageUrl:
+                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
                     errorWidget: (context, url, error) => Icon(Icons.error),
-                    fit: BoxFit.cover
-                ),
+                    fit: BoxFit.cover),
                 CachedNetworkImage(
-                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
-                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    imageUrl:
+                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
                     errorWidget: (context, url, error) => Icon(Icons.error),
-                    fit: BoxFit.cover
-                ),
+                    fit: BoxFit.cover),
                 CachedNetworkImage(
-                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
-                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    imageUrl:
+                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
                     errorWidget: (context, url, error) => Icon(Icons.error),
-                    fit: BoxFit.cover
-                ),
+                    fit: BoxFit.cover),
                 CachedNetworkImage(
-                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
-                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    imageUrl:
+                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
                     errorWidget: (context, url, error) => Icon(Icons.error),
-                    fit: BoxFit.cover
-                ),
+                    fit: BoxFit.cover),
               ],
             ),
             buttons: [
@@ -1020,30 +1003,30 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
                 ),
               )
             ]).show();
-          // _buttonFalse();
-        },
-        child: Container(
-          margin: EdgeInsets.all(kDefaultPadding),
-          padding: EdgeInsets.symmetric(
-            horizontal: kDefaultPadding,
-            vertical: kDefaultPadding / 2,
+        // _buttonFalse();
+      },
+      child: Container(
+        margin: EdgeInsets.all(kDefaultPadding),
+        padding: EdgeInsets.symmetric(
+          horizontal: kDefaultPadding,
+          vertical: kDefaultPadding / 2,
+        ),
+        decoration: BoxDecoration(
+          color: Color(0xFFFCBF1E),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Center(
+          child: Column(
+            children: [
+              Text("View 3D Photos"),
+            ],
           ),
-          decoration: BoxDecoration(
-            color: Color(0xFFFCBF1E),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Center(
-            child: Column(
-              children: [
-                
-                Text("View 3D Photos"),
-              ],
-            ),
-          ),
-        ),);
+        ),
+      ),
+    );
 
     // return Container(
-    //   child: isDownloaded ? 
+    //   child: isDownloaded ?
     //   Container(
     //       margin: EdgeInsets.all(kDefaultPadding),
     //       padding: EdgeInsets.symmetric(
@@ -1069,7 +1052,7 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //           ],
     //         ),
     //       ),
-          
+
     //     )
     //    : GestureDetector(
     //     onTap: () async{
@@ -1097,80 +1080,82 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //           ],
     //         ),
     //       ),
-          
+
     //     ),
     //   ),
     // );
   }
 
   Widget plan500() {
-    return buttonPlanDownload ? GestureDetector(
-      onTap: _show500,
-      child: Container(
-        margin: EdgeInsets.all(kDefaultPadding),
-        padding: EdgeInsets.symmetric(
-          horizontal: kDefaultPadding,
-          vertical: kDefaultPadding / 2,
-        ),
-        decoration: BoxDecoration(
-          color: Color(0xFFFCBF1E),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Center(
-          child: Column(
-            children: [
-              Text('$progressFloorPlan%'),
-              isDownloadedFloorPlan ? Text(
-                      'File Downloaded! You can see your file in the Downloads\'s folder',
-                    )
-              : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
-            ],
-          ),
-        ),
-        
-      ),
-    ) :
-    
-      Container(
-        margin: EdgeInsets.all(kDefaultPadding),
-        padding: EdgeInsets.symmetric(
-          horizontal: kDefaultPadding,
-          vertical: kDefaultPadding / 2,
-        ),
-        decoration: BoxDecoration(
-          color: Color(0xFFFCBF1E),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Center(
-          child: Column(
-            children: [
-              Text('$progressFloorPlan%'),
-              isDownloadedFloorPlan ? Text(
-                      'File Downloaded! You can see your file in the Downloads\'s folder',
-                    )
-              : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
-            ],
-          ),
-        ),
-        
-      );
+    return buttonPlanDownload
+        ? GestureDetector(
+            onTap: _show500,
+            child: Container(
+              margin: EdgeInsets.all(kDefaultPadding),
+              padding: EdgeInsets.symmetric(
+                horizontal: kDefaultPadding,
+                vertical: kDefaultPadding / 2,
+              ),
+              decoration: BoxDecoration(
+                color: Color(0xFFFCBF1E),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Center(
+                child: Column(
+                  children: [
+                    Text('$progressFloorPlan%'),
+                    isDownloadedFloorPlan
+                        ? Text(
+                            'File Downloaded! You can see your file in the Downloads\'s folder',
+                          )
+                        : Text(
+                            "Floor Plan Preview Ksh ${widget.product.planAmount}"),
+                  ],
+                ),
+              ),
+            ),
+          )
+        : Container(
+            margin: EdgeInsets.all(kDefaultPadding),
+            padding: EdgeInsets.symmetric(
+              horizontal: kDefaultPadding,
+              vertical: kDefaultPadding / 2,
+            ),
+            decoration: BoxDecoration(
+              color: Color(0xFFFCBF1E),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  Text('$progressFloorPlan%'),
+                  isDownloadedFloorPlan
+                      ? Text(
+                          'File Downloaded! You can see your file in the Downloads\'s folder',
+                        )
+                      : Text(
+                          "Floor Plan Preview Ksh ${widget.product.planAmount}"),
+                ],
+              ),
+            ),
+          );
   }
 
   _show500() {
     // StatefulBuilder(
     //   // ignore: missing_return
-    //   builder: (BuildContext context, void Function(void Function()) setState) { 
+    //   builder: (BuildContext context, void Function(void Function()) setState) {
     //     Alert(context: context, title: "RFLUTTER", desc: "Flutter is awesome.").show();
     //    }
 
     //     // return show;
-      
+
     // );
     // @override
     // Widget build(BuildContext context) {
     //   return Alert(context: context, title: "RFLUTTER", desc: "Flutter is awesome.").show();
     // }
-    
+
     // showDialog(
     //   context: null,
     //   builder: (context) => ,
@@ -1182,1020 +1167,1037 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
     //   },
     // );
 
-    buttonStateFloorPlan ? Alert(
-        context: context,
-        title: "Floor Plan",
-        desc: "Basic Plan. \n\n Enter your Mpesa number below",
-        content: Column(
-          children: <Widget>[
-            
-            TextField(
-              // obscureText: true,
-              // onChanged: (value) {
-              //   Provider.of<AddTruckProvider>(context).setMessage2(null);
-              // },
-              controller: _controllerPhone,
-              decoration: InputDecoration(
-                icon: Icon(Icons.phone),
-                labelText: 'Phone Number (0712345678)',
-                // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
-              ),
-              inputFormatters: <TextInputFormatter>[
-                  LengthLimitingTextInputFormatter(10),
-                  WhitelistingTextInputFormatter.digitsOnly,
-                  
-                ],
-            ),
-            // TextField(
-            //   // obscureText: true,
-            //   // onChanged: (value) {
-            //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
-            //   // },
-            //   // controller: _controllerLocation,
-            //   decoration: InputDecoration(
-            //     icon: Icon(Icons.location_on),
-            //     labelText: 'Current Location',
-            //   ),
-            // ),
-          ],
-        ),
-        buttons: [
-          DialogButton(
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-            // color: Color.fromRGBO(240, 9, 4, 1.0),
-            color: Colors.red,
-          ),
-
-          // DialogButton(
-          //   child: buttonStateFloorPlan ? Text(
-          //     "Test",
-          //     style: TextStyle(color: Colors.white, fontSize: 20),
-          //   ) : Text(
-          //     "No",
-          //     style: TextStyle(color: Colors.white, fontSize: 20),
-          //   ),
-          //   onPressed: () async{
-          //     // _buttonFalse();
-          //     setState(() {
-          //       buttonStateFloorPlan = false;
-          //     });
-          //     Navigator.of(context, rootNavigator: true).pop();
-          //     _show500();
-          //   },
-          //   // color: Color.fromRGBO(240, 9, 4, 1.0),
-          //   color: Colors.red,
-          // ),
-          
-          DialogButton(
-            onPressed: () async{
-              // _postTruck();
-              // setState(() {
-              //   buttonStateFloorPlan = false;
-              // });
-              // _buttonFalse();
-              setState(() {
-                buttonStateFloorPlan = false;
-              });
-              Navigator.of(context, rootNavigator: true).pop();
-              _show500();
-
-              print(buttonStateFloorPlan);
-              print("button pressed");
-              // _success();
-              Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
-              
-              SafPostModel res = SafPostModel.fromJson(responsePhone.data);
-
-              setState(() {
-                checkoutRequestId = res.checkoutRequestId;
-              });
-              print(res.responseCode);
-              print(checkoutRequestId);
-              if (res.responseCode == '0') {
-                Navigator.of(context, rootNavigator: true).pop();
-                setState(() {
-                  buttonStateFloorPlan = true;
-                });
-                _show500();
-                // _buttonTrue();
-                print('object worked');
-                _verify();
-              } else {
-                print('object failed');
-                // _verify();
-                setState(() {
-                  buttonStateFloorPlan = true;
-                });
-                // _buttonTrue();
-                _failed();
-
-              }
-
-              
-              // _failed();
-              // Navigator.of(context, rootNavigator: true).pop();
-              // Navigator.of(context).pushNamed(
-              //   '/home',
-              //   // arguments: 'Hello there from the first page!',
-              // );
-              // Navigator.pop(context);
-              //         // closeFunction();
-              },
-            // child: buttonStateFloorPlan ? Text(
-            //   "Buy",
-            //   style: TextStyle(color: Colors.white, fontSize: 20),
-            // ) : CircularProgressIndicator(),
-            child: Text(
-              "Buy",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            color: Colors.green,
-          )
-        ]).show() :
-        Alert(
-        context: context,
-        title: "Floor Plan",
-        desc: "Basic Plan. \n\n Enter your Mpesa number below",
-        content: Column(
-          children: <Widget>[
-            
-            TextField(
-              // obscureText: true,
-              // onChanged: (value) {
-              //   Provider.of<AddTruckProvider>(context).setMessage2(null);
-              // },
-              controller: _controllerPhone,
-              decoration: InputDecoration(
-                icon: Icon(Icons.phone),
-                labelText: 'Phone Number (0712345678)',
-                // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
-              ),
-              inputFormatters: <TextInputFormatter>[
-                  LengthLimitingTextInputFormatter(10),
-                  WhitelistingTextInputFormatter.digitsOnly,
-                  
-                ],
-            ),
-            // TextField(
-            //   // obscureText: true,
-            //   // onChanged: (value) {
-            //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
-            //   // },
-            //   // controller: _controllerLocation,
-            //   decoration: InputDecoration(
-            //     icon: Icon(Icons.location_on),
-            //     labelText: 'Current Location',
-            //   ),
-            // ),
-          ],
-        ),
-        buttons: [
-          DialogButton(
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-            // color: Color.fromRGBO(240, 9, 4, 1.0),
-            color: Colors.red,
-          ),
-
-          DialogButton(
-            child: buttonStateFloorPlan ? Text(
-              "Test1",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ) : Text(
-              "No1",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () async{
-              // _buttonFalse();
-              setState(() {
-                buttonStateFloorPlan = true;
-              });
-              Navigator.of(context, rootNavigator: true).pop();
-              _show500();
-            },
-            // color: Color.fromRGBO(240, 9, 4, 1.0),
-            color: Colors.red,
-          ),
-          
-          DialogButton(
-            onPressed: () async{
-              // _postTruck();
-              // setState(() {
-              //   buttonStateFloorPlan = false;
-              // });
-
-              // _buttonFalse();
-              // print(buttonStateFloorPlan);
-              // print("button pressed");
-              // // _success();
-              // Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
-              
-              // SafPostModel res = SafPostModel.fromJson(responsePhone.data);
-
-              // setState(() {
-              //   checkoutRequestId = res.checkoutRequestId;
-              // });
-              // print(res.responseCode);
-              // print(checkoutRequestId);
-              // if (res.responseCode == '0') {
-              //   _buttonTrue();
-              //   print('object worked');
-              //   _verify();
-              // } else {
-              //   print('object failed');
-              //   // _verify();
-              //   _buttonTrue();
-              //   _failed();
-
-              // }
-
-              
-              // _failed();
-              // Navigator.of(context, rootNavigator: true).pop();
-              // Navigator.of(context).pushNamed(
-              //   '/home',
-              //   // arguments: 'Hello there from the first page!',
-              // );
-              // Navigator.pop(context);
-              //         // closeFunction();
-              },
-            // child: buttonStateFloorPlan ? Text(
-            //   "Buy",
-            //   style: TextStyle(color: Colors.white, fontSize: 20),
-            // ) : CircularProgressIndicator(),
-            child: CircularProgressIndicator(),
-            color: Colors.green,
-          )
-        ]).show();
-      
-    
-    
-  }
-  
-  _showPlan() {
-    // Alert(context: context, title: "RFLUTTER", desc: "Flutter is awesome.").show();
-    buttonStateBasic ? Alert(
-        context: context,
-        title: "Basic Package",
-        desc: "Basic Plan. \n 2d. \n\n Enter your Mpesa number below",
-        content: Column(
-          children: <Widget>[
-            
-            TextField(
-              // obscureText: true,
-              // onChanged: (value) {
-              //   Provider.of<AddTruckProvider>(context).setMessage2(null);
-              // },
-              controller: _controllerPhoneBasic,
-              decoration: InputDecoration(
-                icon: Icon(Icons.phone),
-                labelText: 'Phone Number (0712345678)',
-                // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
-              ),
-              inputFormatters: <TextInputFormatter>[
-                  LengthLimitingTextInputFormatter(10),
-                  WhitelistingTextInputFormatter.digitsOnly,
-                  
-                ],
-            ),
-            // TextField(
-            //   // obscureText: true,
-            //   // onChanged: (value) {
-            //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
-            //   // },
-            //   // controller: _controllerLocation,
-            //   decoration: InputDecoration(
-            //     icon: Icon(Icons.location_on),
-            //     labelText: 'Current Location',
-            //   ),
-            // ),
-          ],
-        ),
-        buttons: [
-          DialogButton(
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-            // color: Color.fromRGBO(240, 9, 4, 1.0),
-            color: Colors.red,
-          ),
-          DialogButton(
-            onPressed: () async{
-                setState(() {
-                  buttonStateBasic = false;
-                });
-                Navigator.of(context, rootNavigator: true).pop();
-                _showPlan();
-
-                print(buttonStateBasic);
-                print("button pressed");
-                // _success();
-                Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhoneBasic.text});
-                
-                SafPostModel res = SafPostModel.fromJson(responsePhone.data);
-
-                setState(() {
-                  checkoutRequestId = res.checkoutRequestId;
-                });
-                print(res.responseCode);
-                print(checkoutRequestId);
-                if (res.responseCode == '0') {
-                  Navigator.of(context, rootNavigator: true).pop();
-                  setState(() {
-                    buttonStateBasic = true;
-                  });
-                  _showPlan();
-                  // _buttonTrue();
-                  print('object worked');
-                  _verifyBasic();
-                } else {
-                  print('object failed');
-                  // _verify();
-                  setState(() {
-                    buttonStateBasic = true;
-                  });
-                  // _buttonTrue();
-                  _failed();
-
-                }
-              },
-            child: Text(
-              "Buy",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            color: Colors.green,
-          )
-        ]).show() :
-        Alert(
-          context: context,
-          title: "Basic Package",
-          desc: "Basic Plan. \n 2d. \n\n Enter your Mpesa number below",
-          content: Column(
-            children: <Widget>[
-              
-              TextField(
-                // obscureText: true,
-                // onChanged: (value) {
-                //   Provider.of<AddTruckProvider>(context).setMessage2(null);
-                // },
-                controller: _controllerPhoneBasic,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.phone),
-                  labelText: 'Phone Number (0712345678)',
-                  // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
-                ),
-                inputFormatters: <TextInputFormatter>[
+    buttonStateFloorPlan
+        ? Alert(
+            context: context,
+            title: "Floor Plan",
+            desc: "Basic Plan. \n\n Enter your Mpesa number below",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  // obscureText: true,
+                  // onChanged: (value) {
+                  //   Provider.of<AddTruckProvider>(context).setMessage2(null);
+                  // },
+                  controller: _controllerPhone,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.phone),
+                    labelText: 'Phone Number (0712345678)',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[
                     LengthLimitingTextInputFormatter(10),
                     WhitelistingTextInputFormatter.digitsOnly,
-                    
                   ],
-              ),
-              // TextField(
-              //   // obscureText: true,
-              //   // onChanged: (value) {
-              //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
-              //   // },
-              //   // controller: _controllerLocation,
-              //   decoration: InputDecoration(
-              //     icon: Icon(Icons.location_on),
-              //     labelText: 'Current Location',
-              //   ),
-              // ),
-            ],
-          ),
-          buttons: [
-            DialogButton(
-              child: Text(
-                "Cancel",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              // color: Color.fromRGBO(240, 9, 4, 1.0),
-              color: Colors.red,
+                ),
+                // TextField(
+                //   // obscureText: true,
+                //   // onChanged: (value) {
+                //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
+                //   // },
+                //   // controller: _controllerLocation,
+                //   decoration: InputDecoration(
+                //     icon: Icon(Icons.location_on),
+                //     labelText: 'Current Location',
+                //   ),
+                // ),
+              ],
             ),
-            DialogButton(
-              onPressed: () {
-                
-                },
-              child: CircularProgressIndicator(),
-              color: Colors.green,
-            )
-          ]).show();
-    
+            buttons: [
+                DialogButton(
+                  child: Text(
+                    "mobile",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => MobileMoney())),
+                  // color: Color.fromRGBO(240, 9, 4, 1.0),
+                  color: Colors.red,
+                ),
+                DialogButton(
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  // color: Color.fromRGBO(240, 9, 4, 1.0),
+                  color: Colors.red,
+                ),
+
+                // DialogButton(
+                //   child: buttonStateFloorPlan ? Text(
+                //     "Test",
+                //     style: TextStyle(color: Colors.white, fontSize: 20),
+                //   ) : Text(
+                //     "No",
+                //     style: TextStyle(color: Colors.white, fontSize: 20),
+                //   ),
+                //   onPressed: () async{
+                //     // _buttonFalse();
+                //     setState(() {
+                //       buttonStateFloorPlan = false;
+                //     });
+                //     Navigator.of(context, rootNavigator: true).pop();
+                //     _show500();
+                //   },
+                //   // color: Color.fromRGBO(240, 9, 4, 1.0),
+                //   color: Colors.red,
+                // ),
+
+                DialogButton(
+                  onPressed: () async {
+                    // _postTruck();
+                    // setState(() {
+                    //   buttonStateFloorPlan = false;
+                    // });
+                    // _buttonFalse();
+                    setState(() {
+                      buttonStateFloorPlan = false;
+                    });
+                    Navigator.of(context, rootNavigator: true).pop();
+                    _show500();
+
+                    print(buttonStateFloorPlan);
+                    print("button pressed");
+                    // _success();
+                    Response responsePhone = await dio.post(
+                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
+                        data: {"number": _controllerPhone.text});
+
+                    SafPostModel res =
+                        SafPostModel.fromJson(responsePhone.data);
+
+                    setState(() {
+                      checkoutRequestId = res.checkoutRequestId;
+                    });
+                    print(res.responseCode);
+                    print(checkoutRequestId);
+                    if (res.responseCode == '0') {
+                      Navigator.of(context, rootNavigator: true).pop();
+                      setState(() {
+                        buttonStateFloorPlan = true;
+                      });
+                      _show500();
+                      // _buttonTrue();
+                      print('object worked');
+                      _verify();
+                    } else {
+                      print('object failed');
+                      // _verify();
+                      setState(() {
+                        buttonStateFloorPlan = true;
+                      });
+                      // _buttonTrue();
+                      _failed();
+                    }
+
+                    // _failed();
+                    // Navigator.of(context, rootNavigator: true).pop();
+                    // Navigator.of(context).pushNamed(
+                    //   '/home',
+                    //   // arguments: 'Hello there from the first page!',
+                    // );
+                    // Navigator.pop(context);
+                    //         // closeFunction();
+                  },
+                  // child: buttonStateFloorPlan ? Text(
+                  //   "Buy",
+                  //   style: TextStyle(color: Colors.white, fontSize: 20),
+                  // ) : CircularProgressIndicator(),
+                  child: Text(
+                    "Buy",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  color: Colors.green,
+                )
+              ]).show()
+        : Alert(
+            context: context,
+            title: "Floor Plan",
+            desc: "Basic Plan. \n\n Enter your Mpesa number below",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  // obscureText: true,
+                  // onChanged: (value) {
+                  //   Provider.of<AddTruckProvider>(context).setMessage2(null);
+                  // },
+                  controller: _controllerPhone,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.phone),
+                    labelText: 'Phone Number (0712345678)',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(10),
+                    WhitelistingTextInputFormatter.digitsOnly,
+                  ],
+                ),
+                // TextField(
+                //   // obscureText: true,
+                //   // onChanged: (value) {
+                //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
+                //   // },
+                //   // controller: _controllerLocation,
+                //   decoration: InputDecoration(
+                //     icon: Icon(Icons.location_on),
+                //     labelText: 'Current Location',
+                //   ),
+                // ),
+              ],
+            ),
+            buttons: [
+                DialogButton(
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  // color: Color.fromRGBO(240, 9, 4, 1.0),
+                  color: Colors.red,
+                ),
+                DialogButton(
+                  child: buttonStateFloorPlan
+                      ? Text(
+                          "Test1",
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        )
+                      : Text(
+                          "No1",
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                  onPressed: () async {
+                    // _buttonFalse();
+                    setState(() {
+                      buttonStateFloorPlan = true;
+                    });
+                    Navigator.of(context, rootNavigator: true).pop();
+                    _show500();
+                  },
+                  // color: Color.fromRGBO(240, 9, 4, 1.0),
+                  color: Colors.red,
+                ),
+                DialogButton(
+                  onPressed: () async {
+                    // _postTruck();
+                    // setState(() {
+                    //   buttonStateFloorPlan = false;
+                    // });
+
+                    // _buttonFalse();
+                    // print(buttonStateFloorPlan);
+                    // print("button pressed");
+                    // // _success();
+                    // Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhone.text});
+
+                    // SafPostModel res = SafPostModel.fromJson(responsePhone.data);
+
+                    // setState(() {
+                    //   checkoutRequestId = res.checkoutRequestId;
+                    // });
+                    // print(res.responseCode);
+                    // print(checkoutRequestId);
+                    // if (res.responseCode == '0') {
+                    //   _buttonTrue();
+                    //   print('object worked');
+                    //   _verify();
+                    // } else {
+                    //   print('object failed');
+                    //   // _verify();
+                    //   _buttonTrue();
+                    //   _failed();
+
+                    // }
+
+                    // _failed();
+                    // Navigator.of(context, rootNavigator: true).pop();
+                    // Navigator.of(context).pushNamed(
+                    //   '/home',
+                    //   // arguments: 'Hello there from the first page!',
+                    // );
+                    // Navigator.pop(context);
+                    //         // closeFunction();
+                  },
+                  // child: buttonStateFloorPlan ? Text(
+                  //   "Buy",
+                  //   style: TextStyle(color: Colors.white, fontSize: 20),
+                  // ) : CircularProgressIndicator(),
+                  child: CircularProgressIndicator(),
+                  color: Colors.green,
+                )
+              ]).show();
   }
 
+  _showPlan() {
+    // Alert(context: context, title: "RFLUTTER", desc: "Flutter is awesome.").show();
+    buttonStateBasic
+        ? Alert(
+            context: context,
+            title: "Basic Package",
+            desc: "Basic Plan. \n 2d. \n\n Enter your Mpesa number below",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  // obscureText: true,
+                  // onChanged: (value) {
+                  //   Provider.of<AddTruckProvider>(context).setMessage2(null);
+                  // },
+                  controller: _controllerPhoneBasic,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.phone),
+                    labelText: 'Phone Number (0712345678)',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(10),
+                    WhitelistingTextInputFormatter.digitsOnly,
+                  ],
+                ),
+                // TextField(
+                //   // obscureText: true,
+                //   // onChanged: (value) {
+                //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
+                //   // },
+                //   // controller: _controllerLocation,
+                //   decoration: InputDecoration(
+                //     icon: Icon(Icons.location_on),
+                //     labelText: 'Current Location',
+                //   ),
+                // ),
+              ],
+            ),
+            buttons: [
+                DialogButton(
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  // color: Color.fromRGBO(240, 9, 4, 1.0),
+                  color: Colors.red,
+                ),
+                DialogButton(
+                  onPressed: () async {
+                    setState(() {
+                      buttonStateBasic = false;
+                    });
+                    Navigator.of(context, rootNavigator: true).pop();
+                    _showPlan();
+
+                    print(buttonStateBasic);
+                    print("button pressed");
+                    // _success();
+                    Response responsePhone = await dio.post(
+                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
+                        data: {"number": _controllerPhoneBasic.text});
+
+                    SafPostModel res =
+                        SafPostModel.fromJson(responsePhone.data);
+
+                    setState(() {
+                      checkoutRequestId = res.checkoutRequestId;
+                    });
+                    print(res.responseCode);
+                    print(checkoutRequestId);
+                    if (res.responseCode == '0') {
+                      Navigator.of(context, rootNavigator: true).pop();
+                      setState(() {
+                        buttonStateBasic = true;
+                      });
+                      _showPlan();
+                      // _buttonTrue();
+                      print('object worked');
+                      _verifyBasic();
+                    } else {
+                      print('object failed');
+                      // _verify();
+                      setState(() {
+                        buttonStateBasic = true;
+                      });
+                      // _buttonTrue();
+                      _failed();
+                    }
+                  },
+                  child: Text(
+                    "Buy",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  color: Colors.green,
+                )
+              ]).show()
+        : Alert(
+            context: context,
+            title: "Basic Package",
+            desc: "Basic Plan. \n 2d. \n\n Enter your Mpesa number below",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  // obscureText: true,
+                  // onChanged: (value) {
+                  //   Provider.of<AddTruckProvider>(context).setMessage2(null);
+                  // },
+                  controller: _controllerPhoneBasic,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.phone),
+                    labelText: 'Phone Number (0712345678)',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(10),
+                    WhitelistingTextInputFormatter.digitsOnly,
+                  ],
+                ),
+                // TextField(
+                //   // obscureText: true,
+                //   // onChanged: (value) {
+                //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
+                //   // },
+                //   // controller: _controllerLocation,
+                //   decoration: InputDecoration(
+                //     icon: Icon(Icons.location_on),
+                //     labelText: 'Current Location',
+                //   ),
+                // ),
+              ],
+            ),
+            buttons: [
+                DialogButton(
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  // color: Color.fromRGBO(240, 9, 4, 1.0),
+                  color: Colors.red,
+                ),
+                DialogButton(
+                  onPressed: () {},
+                  child: CircularProgressIndicator(),
+                  color: Colors.green,
+                )
+              ]).show();
+  }
 
   _showCad() {
     // Alert(context: context, title: "RFLUTTER", desc: "Flutter is awesome.").show();
-    buttonStatePremium ? Alert(
-        context: context,
-        title: "Premium Package",
-        desc: "3d. \n 2d. \n Floor Plan \n Elevation \n\n Enter your Mpesa number below",
-        content: Column(
-          children: <Widget>[
-            
-            TextField(
-              // obscureText: true,
-              // onChanged: (value) {
-              //   Provider.of<AddTruckProvider>(context).setMessage2(null);
-              // },
-              controller: _controllerPhonePremium,
-              decoration: InputDecoration(
-                icon: Icon(Icons.phone),
-                labelText: 'Phone Number (0712345678)',
-                // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
-              ),
-              inputFormatters: <TextInputFormatter>[
-                  LengthLimitingTextInputFormatter(10),
-                  WhitelistingTextInputFormatter.digitsOnly,
-                  
-                ],
-            ),
-            // TextField(
-            //   // obscureText: true,
-            //   // onChanged: (value) {
-            //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
-            //   // },
-            //   // controller: _controllerLocation,
-            //   decoration: InputDecoration(
-            //     icon: Icon(Icons.location_on),
-            //     labelText: 'Current Location',
-            //   ),
-            // ),
-          ],
-        ),
-        buttons: [
-          DialogButton(
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-            // color: Color.fromRGBO(240, 9, 4, 1.0),
-            color: Colors.red,
-          ),
-          DialogButton(
-            onPressed: () async{
-                setState(() {
-                  buttonStatePremium = false;
-                });
-                Navigator.of(context, rootNavigator: true).pop();
-                _showCad();
-
-                print(buttonStatePremium);
-                print("button pressed");
-                // _success();
-                Response responsePhone = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber", data: {"number": _controllerPhonePremium.text});
-                
-                SafPostModel res = SafPostModel.fromJson(responsePhone.data);
-
-                setState(() {
-                  checkoutRequestId = res.checkoutRequestId;
-                });
-                print(res.responseCode);
-                print(checkoutRequestId);
-                if (res.responseCode == '0') {
-                  Navigator.of(context, rootNavigator: true).pop();
-                  setState(() {
-                    buttonStatePremium = true;
-                  });
-                  _showCad();
-                  // _buttonTrue();
-                  print('object worked');
-                  _verifyPremium();
-                } else {
-                  print('object failed');
-                  // _verify();
-                  setState(() {
-                    buttonStatePremium = true;
-                  });
-                  // _buttonTrue();
-                  _failed();
-
-                }
-              },
-            child: Text(
-              "Buy",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            color: Colors.green,
-          )
-        ]).show() : 
-        Alert(
-          context: context,
-          title: "Premium Package",
-          desc: "3d. \n 2d. \n Floor Plan \n Elevation \n\n Enter your Mpesa number below",
-          content: Column(
-            children: <Widget>[
-              
-              TextField(
-                // obscureText: true,
-                // onChanged: (value) {
-                //   Provider.of<AddTruckProvider>(context).setMessage2(null);
-                // },
-                // controller: _controllerPhone,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.phone),
-                  labelText: 'Phone Number (0712345678)',
-                  // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
-                ),
-                inputFormatters: <TextInputFormatter>[
+    buttonStatePremium
+        ? Alert(
+            context: context,
+            title: "Premium Package",
+            desc:
+                "3d. \n 2d. \n Floor Plan \n Elevation \n\n Enter your Mpesa number below",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  // obscureText: true,
+                  // onChanged: (value) {
+                  //   Provider.of<AddTruckProvider>(context).setMessage2(null);
+                  // },
+                  controller: _controllerPhonePremium,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.phone),
+                    labelText: 'Phone Number (0712345678)',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[
                     LengthLimitingTextInputFormatter(10),
                     WhitelistingTextInputFormatter.digitsOnly,
-                    
                   ],
-              ),
-              // TextField(
-              //   // obscureText: true,
-              //   // onChanged: (value) {
-              //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
-              //   // },
-              //   // controller: _controllerLocation,
-              //   decoration: InputDecoration(
-              //     icon: Icon(Icons.location_on),
-              //     labelText: 'Current Location',
-              //   ),
-              // ),
-            ],
-          ),
-          buttons: [
-            DialogButton(
-              child: Text(
-                "Cancel",
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-              onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              // color: Color.fromRGBO(240, 9, 4, 1.0),
-              color: Colors.red,
+                ),
+                // TextField(
+                //   // obscureText: true,
+                //   // onChanged: (value) {
+                //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
+                //   // },
+                //   // controller: _controllerLocation,
+                //   decoration: InputDecoration(
+                //     icon: Icon(Icons.location_on),
+                //     labelText: 'Current Location',
+                //   ),
+                // ),
+              ],
             ),
-            DialogButton(
-              onPressed: () {
-                
+            buttons: [
+                DialogButton(
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  // color: Color.fromRGBO(240, 9, 4, 1.0),
+                  color: Colors.red,
+                ),
+                DialogButton(
+                  onPressed: () async {
+                    setState(() {
+                      buttonStatePremium = false;
+                    });
+                    Navigator.of(context, rootNavigator: true).pop();
+                    _showCad();
+
+                    print(buttonStatePremium);
+                    print("button pressed");
+                    // _success();
+                    Response responsePhone = await dio.post(
+                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
+                        data: {"number": _controllerPhonePremium.text});
+
+                    SafPostModel res =
+                        SafPostModel.fromJson(responsePhone.data);
+
+                    setState(() {
+                      checkoutRequestId = res.checkoutRequestId;
+                    });
+                    print(res.responseCode);
+                    print(checkoutRequestId);
+                    if (res.responseCode == '0') {
+                      Navigator.of(context, rootNavigator: true).pop();
+                      setState(() {
+                        buttonStatePremium = true;
+                      });
+                      _showCad();
+                      // _buttonTrue();
+                      print('object worked');
+                      _verifyPremium();
+                    } else {
+                      print('object failed');
+                      // _verify();
+                      setState(() {
+                        buttonStatePremium = true;
+                      });
+                      // _buttonTrue();
+                      _failed();
+                    }
+                  },
+                  child: Text(
+                    "Buy",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  color: Colors.green,
+                )
+              ]).show()
+        : Alert(
+            context: context,
+            title: "Premium Package",
+            desc:
+                "3d. \n 2d. \n Floor Plan \n Elevation \n\n Enter your Mpesa number below",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  // obscureText: true,
+                  // onChanged: (value) {
+                  //   Provider.of<AddTruckProvider>(context).setMessage2(null);
+                  // },
+                  // controller: _controllerPhone,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.phone),
+                    labelText: 'Phone Number (0712345678)',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    LengthLimitingTextInputFormatter(10),
+                    WhitelistingTextInputFormatter.digitsOnly,
+                  ],
+                ),
+                // TextField(
+                //   // obscureText: true,
+                //   // onChanged: (value) {
+                //   //   Provider.of<AddTruckProvider>(context).setMessage3(null);
+                //   // },
+                //   // controller: _controllerLocation,
+                //   decoration: InputDecoration(
+                //     icon: Icon(Icons.location_on),
+                //     labelText: 'Current Location',
+                //   ),
+                // ),
+              ],
+            ),
+            buttons: [
+                DialogButton(
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  // color: Color.fromRGBO(240, 9, 4, 1.0),
+                  color: Colors.red,
+                ),
+                DialogButton(
+                  onPressed: () {},
+                  child: CircularProgressIndicator(),
+                  color: Colors.green,
+                )
+              ]).show();
+  }
+
+  _verify() {
+    buttonPlanVerifyDownload
+        ? Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Transaction Is Being Processed",
+            // desc: "Download Should Begin Shortly.",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Verify",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                // checReq = checkoutRequestId,
+                onPressed: () async {
+                  print(checkoutRequestId);
+                  setState(() {
+                    buttonPlanVerifyDownload = false;
+                  });
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _verify();
+                  Response responseVerify = await dio.post(
+                      "https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify",
+                      data: {"CheckoutRequestID": checkoutRequestId});
+
+                  SafVerifyModel res =
+                      SafVerifyModel.fromJson(responseVerify.data);
+                  // setState(() {
+                  //   checkoutRequestId = "";
+                  // });
+                  print(res.resultCode);
+                  print("hello");
+                  if (res.resultCode == "0") {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    setState(() {
+                      buttonPlanVerifyDownload = true;
+                    });
+                    _verify();
+                    print("hello 2");
+                    _success();
+                  } else {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    setState(() {
+                      buttonPlanVerifyDownload = true;
+                    });
+                    _verify();
+                    print("hello 2");
+                  }
                 },
-              child: CircularProgressIndicator(),
-              color: Colors.green,
-            )
-          ]).show();
-    
+                width: 120,
+              )
+            ],
+          ).show()
+        : Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Transaction Is Being Processed",
+            // desc: "Download Should Begin Shortly.",
+            buttons: [
+              DialogButton(
+                child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green)),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                // checReq = checkoutRequestId,
+                onPressed: () async {
+                  // print(checkoutRequestId);
+                  // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
+
+                  // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
+                  // // setState(() {
+                  // //   checkoutRequestId = "";
+                  // // });
+                  // print(res.resultCode);
+                  // print("hello");
+                  // if (res.resultCode == "0") {
+                  //   print("hello 2");
+                  //   _success();
+                  // }
+                },
+                width: 120,
+              )
+            ],
+          ).show();
   }
 
-  _verify(){
-    buttonPlanVerifyDownload ? Alert(
-      context: context,
-      type: AlertType.info,
-      title: "Transaction Is Being Processed",
-      // desc: "Download Should Begin Shortly.",
-      buttons: [
-        DialogButton(
-          child: Text(
-            "Verify",
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          ),
-          // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          // checReq = checkoutRequestId,
-          onPressed: () async{
-            print(checkoutRequestId);
-            setState(() {
-              buttonPlanVerifyDownload = false;
-            });
-            Navigator.of(context, rootNavigator: true).pop();
-            _verify();
-            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
-            
-            SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
-            // setState(() {
-            //   checkoutRequestId = "";
-            // });
-            print(res.resultCode);
-            print("hello");
-            if (res.resultCode == "0") {
-              Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                buttonPlanVerifyDownload = true;
-              });
-              _verify();
-              print("hello 2");
-              _success();
-            } else{
-              Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                buttonPlanVerifyDownload = true;
-              });
-              _verify();
-              print("hello 2");
-            }
+  _verifyBasic() {
+    buttonBasicVerifyDownload
+        ? Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Transaction Is Being Processed",
+            // desc: "Download Should Begin Shortly.",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Verify",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                // checReq = checkoutRequestId,
+                onPressed: () async {
+                  print(checkoutRequestId);
+                  setState(() {
+                    buttonBasicVerifyDownload = false;
+                  });
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _verifyBasic();
+                  Response responseVerify = await dio.post(
+                      "https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify",
+                      data: {"CheckoutRequestID": checkoutRequestId});
 
-          },
-          width: 120,
-        )
-      ],
-    ).show() :
-    Alert(
-      context: context,
-      type: AlertType.info,
-      title: "Transaction Is Being Processed",
-      // desc: "Download Should Begin Shortly.",
-      buttons: [
-        
-        DialogButton(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.green)
-          ),
-          // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          // checReq = checkoutRequestId,
-          onPressed: () async{
-            // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
-            
-            // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
-            // // setState(() {
-            // //   checkoutRequestId = "";
-            // // });
-            // print(res.resultCode);
-            // print("hello");
-            // if (res.resultCode == "0") {
-            //   print("hello 2");
-            //   _success();
-            // }
+                  SafVerifyModel res =
+                      SafVerifyModel.fromJson(responseVerify.data);
+                  // setState(() {
+                  //   checkoutRequestId = "";
+                  // });
+                  print(res.resultCode);
+                  print("hello");
+                  if (res.resultCode == "0") {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    setState(() {
+                      buttonBasicVerifyDownload = true;
+                    });
+                    _verifyBasic();
+                    print("hello 2");
+                    _successBasic();
+                  } else {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    setState(() {
+                      buttonBasicVerifyDownload = true;
+                    });
+                    _verifyBasic();
+                    print("hello 2");
+                  }
+                },
+                width: 120,
+              )
+            ],
+          ).show()
+        : Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Transaction Is Being Processed",
+            // desc: "Download Should Begin Shortly.",
+            buttons: [
+              DialogButton(
+                child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green)),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                // checReq = checkoutRequestId,
+                onPressed: () async {
+                  // print(checkoutRequestId);
+                  // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
 
-          },
-          width: 120,
-        )
-      ],
-    ).show();
+                  // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
+                  // // setState(() {
+                  // //   checkoutRequestId = "";
+                  // // });
+                  // print(res.resultCode);
+                  // print("hello");
+                  // if (res.resultCode == "0") {
+                  //   print("hello 2");
+                  //   _success();
+                  // }
+                },
+                width: 120,
+              )
+            ],
+          ).show();
   }
 
-  _verifyBasic(){
-    buttonBasicVerifyDownload ? Alert(
-      context: context,
-      type: AlertType.info,
-      title: "Transaction Is Being Processed",
-      // desc: "Download Should Begin Shortly.",
-      buttons: [
-        DialogButton(
-          child: Text(
-            "Verify",
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          ),
-          // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          // checReq = checkoutRequestId,
-          onPressed: () async{
-            print(checkoutRequestId);
-            setState(() {
-              buttonBasicVerifyDownload = false;
-            });
-            Navigator.of(context, rootNavigator: true).pop();
-            _verifyBasic();
-            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
-            
-            SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
-            // setState(() {
-            //   checkoutRequestId = "";
-            // });
-            print(res.resultCode);
-            print("hello");
-            if (res.resultCode == "0") {
-              Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                buttonBasicVerifyDownload = true;
-              });
-              _verifyBasic();
-              print("hello 2");
-              _successBasic();
-            } else{
-              Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                buttonBasicVerifyDownload = true;
-              });
-              _verifyBasic();
-              print("hello 2");
-            }
+  _verifyPremium() {
+    buttonPremiumVerifyDownload
+        ? Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Transaction Is Being Processed",
+            // desc: "Download Should Begin Shortly.",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Verify",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                // checReq = checkoutRequestId,
+                onPressed: () async {
+                  print(checkoutRequestId);
+                  setState(() {
+                    buttonPremiumVerifyDownload = false;
+                  });
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _verifyPremium();
+                  Response responseVerify = await dio.post(
+                      "https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify",
+                      data: {"CheckoutRequestID": checkoutRequestId});
 
-          },
-          width: 120,
-        )
-      ],
-    ).show() :
-    Alert(
-      context: context,
-      type: AlertType.info,
-      title: "Transaction Is Being Processed",
-      // desc: "Download Should Begin Shortly.",
-      buttons: [
-        
-        DialogButton(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.green)
-          ),
-          // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          // checReq = checkoutRequestId,
-          onPressed: () async{
-            // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
-            
-            // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
-            // // setState(() {
-            // //   checkoutRequestId = "";
-            // // });
-            // print(res.resultCode);
-            // print("hello");
-            // if (res.resultCode == "0") {
-            //   print("hello 2");
-            //   _success();
-            // }
+                  SafVerifyModel res =
+                      SafVerifyModel.fromJson(responseVerify.data);
+                  // setState(() {
+                  //   checkoutRequestId = "";
+                  // });
+                  print(res.resultCode);
+                  print("hello");
+                  if (res.resultCode == "0") {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    setState(() {
+                      buttonPremiumVerifyDownload = true;
+                    });
+                    _verifyPremium();
+                    print("hello 2");
+                    _successPremium();
+                  } else {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    setState(() {
+                      buttonPremiumVerifyDownload = true;
+                    });
+                    _verifyPremium();
+                    print("hello 2");
+                  }
+                },
+                width: 120,
+              )
+            ],
+          ).show()
+        : Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Transaction Is Being Processed",
+            // desc: "Download Should Begin Shortly.",
+            buttons: [
+              DialogButton(
+                child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green)),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                // checReq = checkoutRequestId,
+                onPressed: () async {
+                  // print(checkoutRequestId);
+                  // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
 
-          },
-          width: 120,
-        )
-      ],
-    ).show();
-  }
-
-  _verifyPremium(){
-    buttonPremiumVerifyDownload ? Alert(
-      context: context,
-      type: AlertType.info,
-      title: "Transaction Is Being Processed",
-      // desc: "Download Should Begin Shortly.",
-      buttons: [
-        DialogButton(
-          child: Text(
-            "Verify",
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          ),
-          // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          // checReq = checkoutRequestId,
-          onPressed: () async{
-            print(checkoutRequestId);
-            setState(() {
-              buttonPremiumVerifyDownload = false;
-            });
-            Navigator.of(context, rootNavigator: true).pop();
-            _verifyPremium();
-            Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
-            
-            SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
-            // setState(() {
-            //   checkoutRequestId = "";
-            // });
-            print(res.resultCode);
-            print("hello");
-            if (res.resultCode == "0") {
-              Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                buttonPremiumVerifyDownload = true;
-              });
-              _verifyPremium();
-              print("hello 2");
-              _successPremium();
-            } else {
-              Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                buttonPremiumVerifyDownload = true;
-              });
-              _verifyPremium();
-              print("hello 2");
-            }
-
-          },
-          width: 120,
-        )
-      ],
-    ).show() :
-    Alert(
-      context: context,
-      type: AlertType.info,
-      title: "Transaction Is Being Processed",
-      // desc: "Download Should Begin Shortly.",
-      buttons: [
-        
-        DialogButton(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.green)
-          ),
-          // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-          // checReq = checkoutRequestId,
-          onPressed: () async{
-            // print(checkoutRequestId);
-            // Response responseVerify = await dio.post("https://mwambaapp.mwambabuilders.com/mwambaApp/api/mpesaVerify", data: {"CheckoutRequestID": checkoutRequestId});
-            
-            // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
-            // // setState(() {
-            // //   checkoutRequestId = "";
-            // // });
-            // print(res.resultCode);
-            // print("hello");
-            // if (res.resultCode == "0") {
-            //   print("hello 2");
-            //   _success();
-            // }
-
-          },
-          width: 120,
-        )
-      ],
-    ).show();
+                  // SafVerifyModel res = SafVerifyModel.fromJson(responseVerify.data);
+                  // // setState(() {
+                  // //   checkoutRequestId = "";
+                  // // });
+                  // print(res.resultCode);
+                  // print("hello");
+                  // if (res.resultCode == "0") {
+                  //   print("hello 2");
+                  //   _success();
+                  // }
+                },
+                width: 120,
+              )
+            ],
+          ).show();
   }
 
   _success() {
-    
-        buttonPlanDownload ? Alert(
-          context: context,
-          type: AlertType.success,
-          title: "Transaction Successful \n \n $progressFloorPlan%",
-          desc: isDownloadedFloorPlan ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
-          buttons: [
-            DialogButton(
-              child: Row(
-                children: [
-                  Text(
-                    "Download File",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ],
-              ),
-              // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              onPressed: () async{
-                setState(() {
-                  buttonPlanDownload = false;
-                });
-                Navigator.of(context, rootNavigator: true).pop();
-                _success();
-                downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
-                // setState(() {
-                //   isDownloadedFloorPlan = false;
-                // });
-              },
-              width: 120,
-            )
-          ],
-        ).show() :
-        Alert(
-          context: context,
-          type: AlertType.success,
-          title: "File is Downloading",
-          desc: isDownloadedFloorPlan ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
-          buttons: [
-            DialogButton(
-              child: Column(
-                children: [
-                  Text(
-                    "OK",
-                    style: TextStyle(color: Colors.white, fontSize: 22),
-                  ),
-                ],
-              ),
-              onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              // onPressed: () async{
-                
-              //   downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
-              //   // setState(() {
-              //   //   isDownloadedFloorPlan = false;
-              //   // });
-              // },
-              width: 120,
-            )
-          ],
-        ).show();
-    
+    buttonPlanDownload
+        ? Alert(
+            context: context,
+            type: AlertType.success,
+            title: "Transaction Successful \n \n $progressFloorPlan%",
+            desc: isDownloadedFloorPlan
+                ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+                : "Click Button To Download.",
+            buttons: [
+              DialogButton(
+                child: Row(
+                  children: [
+                    Text(
+                      "Download File",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                onPressed: () async {
+                  setState(() {
+                    buttonPlanDownload = false;
+                  });
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _success();
+                  downloadFileFloorPlan(
+                      uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+                  // setState(() {
+                  //   isDownloadedFloorPlan = false;
+                  // });
+                },
+                width: 120,
+              )
+            ],
+          ).show()
+        : Alert(
+            context: context,
+            type: AlertType.success,
+            title: "File is Downloading",
+            desc: isDownloadedFloorPlan
+                ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+                : "Close Dialogs To View Download.",
+            buttons: [
+              DialogButton(
+                child: Column(
+                  children: [
+                    Text(
+                      "OK",
+                      style: TextStyle(color: Colors.white, fontSize: 22),
+                    ),
+                  ],
+                ),
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).pop(),
+                // onPressed: () async{
+
+                //   downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+                //   // setState(() {
+                //   //   isDownloadedFloorPlan = false;
+                //   // });
+                // },
+                width: 120,
+              )
+            ],
+          ).show();
   }
 
   _successBasic() {
-    
-        buttonBasicDownload ? Alert(
-          context: context,
-          type: AlertType.success,
-          title: "Transaction Successful \n \n $progressBasic%",
-          desc: isDownloadedBasic ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
-          buttons: [
-            DialogButton(
-              child: Row(
-                children: [
-                  Text(
-                    "Download File",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ],
-              ),
-              // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              onPressed: () async{
-                setState(() {
-                  buttonBasicDownload = false;
-                });
-                Navigator.of(context, rootNavigator: true).pop();
-                _successBasic();
-                downloadFileBasic(uriBasic, filenameBasic, resultBasic);
-                // setState(() {
-                //   isDownloadedFloorPlan = false;
-                // });
-              },
-              width: 120,
-            )
-          ],
-        ).show() :
-        Alert(
-          context: context,
-          type: AlertType.success,
-          title: "File is Downloading",
-          desc: isDownloadedBasic ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
-          buttons: [
-            DialogButton(
-              child: Column(
-                children: [
-                  Text(
-                    "OK",
-                    style: TextStyle(color: Colors.white, fontSize: 22),
-                  ),
-                ],
-              ),
-              onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              // onPressed: () async{
-                
-              //   downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
-              //   // setState(() {
-              //   //   isDownloadedFloorPlan = false;
-              //   // });
-              // },
-              width: 120,
-            )
-          ],
-        ).show();
-    
+    buttonBasicDownload
+        ? Alert(
+            context: context,
+            type: AlertType.success,
+            title: "Transaction Successful \n \n $progressBasic%",
+            desc: isDownloadedBasic
+                ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+                : "Click Button To Download.",
+            buttons: [
+              DialogButton(
+                child: Row(
+                  children: [
+                    Text(
+                      "Download File",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                onPressed: () async {
+                  setState(() {
+                    buttonBasicDownload = false;
+                  });
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _successBasic();
+                  downloadFileBasic(uriBasic, filenameBasic, resultBasic);
+                  // setState(() {
+                  //   isDownloadedFloorPlan = false;
+                  // });
+                },
+                width: 120,
+              )
+            ],
+          ).show()
+        : Alert(
+            context: context,
+            type: AlertType.success,
+            title: "File is Downloading",
+            desc: isDownloadedBasic
+                ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+                : "Close Dialogs To View Download.",
+            buttons: [
+              DialogButton(
+                child: Column(
+                  children: [
+                    Text(
+                      "OK",
+                      style: TextStyle(color: Colors.white, fontSize: 22),
+                    ),
+                  ],
+                ),
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).pop(),
+                // onPressed: () async{
+
+                //   downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+                //   // setState(() {
+                //   //   isDownloadedFloorPlan = false;
+                //   // });
+                // },
+                width: 120,
+              )
+            ],
+          ).show();
   }
 
   _successPremium() {
-    
-        buttonPremiumDownload ? Alert(
-          context: context,
-          type: AlertType.success,
-          title: "Transaction Successful \n \n $progressPremium%",
-          desc: isDownloadedPremium ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
-          buttons: [
-            DialogButton(
-              child: Row(
-                children: [
-                  Text(
-                    "Download File",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ],
-              ),
-              // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              onPressed: () async{
-                setState(() {
-                  buttonPremiumDownload = false;
-                });
-                Navigator.of(context, rootNavigator: true).pop();
-                _successPremium();
-                downloadFilePremium(uriPremium, filenamePremium, resultPremium);
-                // setState(() {
-                //   isDownloadedFloorPlan = false;
-                // });
-              },
-              width: 120,
-            )
-          ],
-        ).show() :
-        Alert(
-          context: context,
-          type: AlertType.success,
-          title: "File is Downloading",
-          desc: isDownloadedPremium ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
-          buttons: [
-            DialogButton(
-              child: Column(
-                children: [
-                  Text(
-                    "OK",
-                    style: TextStyle(color: Colors.white, fontSize: 22),
-                  ),
-                ],
-              ),
-              onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
-              // onPressed: () async{
-                
-              //   downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
-              //   // setState(() {
-              //   //   isDownloadedFloorPlan = false;
-              //   // });
-              // },
-              width: 120,
-            )
-          ],
-        ).show();
-    
+    buttonPremiumDownload
+        ? Alert(
+            context: context,
+            type: AlertType.success,
+            title: "Transaction Successful \n \n $progressPremium%",
+            desc: isDownloadedPremium
+                ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+                : "Click Button To Download.",
+            buttons: [
+              DialogButton(
+                child: Row(
+                  children: [
+                    Text(
+                      "Download File",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
+                // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                onPressed: () async {
+                  setState(() {
+                    buttonPremiumDownload = false;
+                  });
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _successPremium();
+                  downloadFilePremium(
+                      uriPremium, filenamePremium, resultPremium);
+                  // setState(() {
+                  //   isDownloadedFloorPlan = false;
+                  // });
+                },
+                width: 120,
+              )
+            ],
+          ).show()
+        : Alert(
+            context: context,
+            type: AlertType.success,
+            title: "File is Downloading",
+            desc: isDownloadedPremium
+                ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+                : "Close Dialogs To View Download.",
+            buttons: [
+              DialogButton(
+                child: Column(
+                  children: [
+                    Text(
+                      "OK",
+                      style: TextStyle(color: Colors.white, fontSize: 22),
+                    ),
+                  ],
+                ),
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).pop(),
+                // onPressed: () async{
+
+                //   downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+                //   // setState(() {
+                //   //   isDownloadedFloorPlan = false;
+                //   // });
+                // },
+                width: 120,
+              )
+            ],
+          ).show();
   }
 
-  _failed(){
+  _failed() {
     Alert(
       context: context,
       type: AlertType.error,
@@ -2213,7 +2215,4 @@ Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) asy
       ],
     ).show();
   }
-  
-
-  
 }
