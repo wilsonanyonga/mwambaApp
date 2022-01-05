@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+// import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mwamba_app/constants.dart';
 import 'package:mwamba_app/screens/product/products_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import 'screens/details/components/body.dart';
 
 void main() async {
-  
-  runApp(MyApp());
+  runApp(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (_) => Counter())],
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -21,8 +25,9 @@ class MyApp extends StatelessWidget {
         // We set Poppins as our default font
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
         primaryColor: kPrimaryColor,
-        accentColor: kPrimaryColor,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        colorScheme:
+            ColorScheme.fromSwatch().copyWith(secondary: kPrimaryColor),
       ),
       home: ProductsScreen(),
     );
