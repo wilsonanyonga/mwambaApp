@@ -2,14 +2,14 @@ import 'package:http/http.dart' as http;
 // import 'dart:convert';
 // import 'package:shared_preferences/shared_preferences.dart';
 
-
 class HomeReq {
   // final String name;
   // final String email;
   // final String password;
   // final String phone;
   // final String userName;
-  final String url = 'http://mwambaapp.mwambabuilders.com/mwambaApp/api/listHome';
+  final String url =
+      'http://mwambaapp.mwambabuilders.com/mwambaApp/api/listHome';
   // static String client_id = 'Your_github_client_id';
   // static String client_secret = 'Your_github_client_secret';
 
@@ -36,11 +36,10 @@ class HomeReq {
     // var token = sharedPreferences.getString("token");
 
     var headersAPI = {
-      'Content-Type' : 'application/json',
-      
+      'Content-Type': 'application/json',
     };
 
-    return http.get(url, headers: headersAPI);
+    return http.get(Uri.parse(url), headers: headersAPI);
 
     // return http.post(url + 'users/following' + query);
   }
