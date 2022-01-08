@@ -5,8 +5,9 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:mwamba_app/screens/details/components/transactionsMobile.dart';
 // import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,158 @@ import 'package:ext_storage/ext_storage.dart';
 
 import 'package:provider/provider.dart';
 
+import 'package:webview_flutter/webview_flutter.dart';
+
 const debug = true;
+
+bool something = true;
+
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+String checkoutRequestId;
+
+bool paypal;
+
+bool webPay;
+bool zipPay;
+bool archPay;
+
+bool somethingElse;
+// bool paypal = context.watch<Counter>().paypal;
+
+bool downloading;
+bool downloadingFloorPlan;
+bool downloadingBasic;
+bool downloadingPremium;
+
+String progress;
+String progressFloorPlan;
+String progressBasic;
+String progressPremium;
+
+String directory;
+String directoryFloorPlan;
+String directoryBasic;
+String directoryPremium;
+
+String downData; // for checking contents of download url
+
+bool isDownloaded;
+bool isDownloadedFloorPlan;
+bool isDownloadedBasic;
+bool isDownloadedPremium;
+
+String uri; // url of the file to be downloaded
+String uriFloorPlan; // url of the file to be downloaded
+String uriBasic; // url of the file to be downloaded
+String uriPremium; // url of the file to be downloaded
+
+String filename; // file name that you desire to keep
+String filenameFloorPlan;
+String filenameBasic;
+String filenamePremium;
+
+TextEditingController _controllerPhone = TextEditingController();
+TextEditingController _controllerPhoneBasic = TextEditingController();
+TextEditingController _controllerPhonePremium = TextEditingController();
+
+TextEditingController _controllerFirstName = TextEditingController();
+TextEditingController _controllerLastName = TextEditingController();
+TextEditingController _controllerEmail = TextEditingController();
+
+Dio dio = Dio();
+
+bool buttonStateFloorPlan;
+bool buttonStateBasic;
+bool buttonStatePremium;
+
+bool buttonPlanDownload;
+bool buttonBasicDownload;
+bool buttonPremiumDownload;
+
+bool buttonPlanVerifyDownload;
+bool buttonBasicVerifyDownload;
+bool buttonPremiumVerifyDownload;
+
+Map<String, dynamic> result;
+Map<String, dynamic> resultFloorPlan;
+Map<String, dynamic> resultBasic;
+Map<String, dynamic> resultPremium;
+
+bool _goBack;
+
+// List<_TaskInfo> _tasks;
+// List<_ItemHolder> _items;
+bool _isLoading;
+bool _permissionReady;
+String _localPath;
+ReceivePort _port = ReceivePort();
+
+/// Mix-in [DiagnosticableTreeMixin] to have access to [debugFillProperties] for the devtool
+// ignore: prefer_mixin
+class Counter with ChangeNotifier, DiagnosticableTreeMixin {
+  int _count = 0;
+  bool _buttonPlanDownload = true;
+  bool _paypal = true;
+
+  int get count => _count;
+  bool get buttonPlanDownload => _buttonPlanDownload;
+  bool get paypal => _paypal;
+
+  void increment() {
+    _count++;
+    notifyListeners();
+  }
+
+  void decrement() {
+    _count--;
+    notifyListeners();
+  }
+
+  void successUpdateFalse() {
+    _buttonPlanDownload = false;
+    notifyListeners();
+  }
+
+  void successUpdateTrue() {
+    _buttonPlanDownload = true;
+    notifyListeners();
+  }
+
+  void paypalFalse() {
+    _paypal = false;
+    notifyListeners();
+  }
+
+  void paypalTrue() {
+    _paypal = true;
+    notifyListeners();
+  }
+
+  /// Makes `Counter` readable inside the devtools by listing all of its properties
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IntProperty('count', count));
+    properties.add(
+        DiagnosticsProperty<bool>('buttonPlanDownload', buttonPlanDownload));
+    properties.add(DiagnosticsProperty<bool>('paypal', paypal));
+  }
+}
+
+class Count extends StatelessWidget {
+  const Count({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+
+        /// Calls `context.watch` to make [Count] rebuild when [Counter] changes.
+        '${context.watch<Counter>().count}',
+        key: const Key('counterState'),
+        style: Theme.of(context).textTheme.headline4);
+  }
+}
 
 class Body extends StatefulWidget {
   final Result product;
@@ -46,74 +198,6 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   // final PutModel responseDown;
-
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-
-  String checkoutRequestId;
-
-  bool downloading;
-  bool downloadingFloorPlan;
-  bool downloadingBasic;
-  bool downloadingPremium;
-
-  String progress;
-  String progressFloorPlan;
-  String progressBasic;
-  String progressPremium;
-
-  String directory;
-  String directoryFloorPlan;
-  String directoryBasic;
-  String directoryPremium;
-
-  String downData; // for checking contents of download url
-
-  bool isDownloaded;
-  bool isDownloadedFloorPlan;
-  bool isDownloadedBasic;
-  bool isDownloadedPremium;
-
-  String uri; // url of the file to be downloaded
-  String uriFloorPlan; // url of the file to be downloaded
-  String uriBasic; // url of the file to be downloaded
-  String uriPremium; // url of the file to be downloaded
-
-  String filename; // file name that you desire to keep
-  String filenameFloorPlan;
-  String filenameBasic;
-  String filenamePremium;
-
-  TextEditingController _controllerPhone = TextEditingController();
-  TextEditingController _controllerPhoneBasic = TextEditingController();
-  TextEditingController _controllerPhonePremium = TextEditingController();
-
-  Dio dio = Dio();
-
-  bool buttonStateFloorPlan;
-  bool buttonStateBasic;
-  bool buttonStatePremium;
-
-  bool buttonPlanDownload;
-  bool buttonBasicDownload;
-  bool buttonPremiumDownload;
-
-  bool buttonPlanVerifyDownload;
-  bool buttonBasicVerifyDownload;
-  bool buttonPremiumVerifyDownload;
-
-  Map<String, dynamic> result;
-  Map<String, dynamic> resultFloorPlan;
-  Map<String, dynamic> resultBasic;
-  Map<String, dynamic> resultPremium;
-
-  bool _goBack;
-
-  // List<_TaskInfo> _tasks;
-  // List<_ItemHolder> _items;
-  bool _isLoading;
-  bool _permissionReady;
-  String _localPath;
-  ReceivePort _port = ReceivePort();
 
   // @override
   // setState(() {
@@ -145,6 +229,12 @@ class _BodyState extends State<Body> {
       'error': null,
     };
 
+    // paypal = context.read<Counter>().paypal;
+    webPay = true;
+    zipPay = true;
+    archPay = true;
+
+    somethingElse = true;
     _goBack = true;
     buttonStateFloorPlan = true;
     buttonStateBasic = true;
@@ -191,7 +281,7 @@ class _BodyState extends State<Body> {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     final android = AndroidInitializationSettings('@mipmap/ic_launcher');
     final iOS = IOSInitializationSettings();
-    final initSettings = InitializationSettings(android, iOS);
+    final initSettings = InitializationSettings(android: android, iOS: iOS);
 
     flutterLocalNotificationsPlugin.initialize(initSettings,
         onSelectNotification: _onSelectNotification);
@@ -269,11 +359,10 @@ class _BodyState extends State<Body> {
 
   // this function is used in the notification
   Future<void> _showNotification(Map<String, dynamic> downloadStatus) async {
-    final android = AndroidNotificationDetails(
-        'channel id', 'channel name', 'channel description',
-        priority: Priority.High, importance: Importance.Max);
+    final android = AndroidNotificationDetails('channel id', 'channel name',
+        priority: Priority.high, importance: Importance.max);
     final iOS = IOSNotificationDetails();
-    final platform = NotificationDetails(android, iOS);
+    final platform = NotificationDetails(android: android, iOS: iOS);
     final json = jsonEncode(downloadStatus);
     final isSuccess = downloadStatus['isSuccess'];
 
@@ -401,10 +490,10 @@ class _BodyState extends State<Body> {
       if (e.response != null) {
         print(e.response.data);
         print(e.response.headers);
-        print(e.response.request);
+        // print(e.response.request);
       } else {
         // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
+        // print(e.request);
         print(e.message);
       }
     } finally {
@@ -483,10 +572,10 @@ class _BodyState extends State<Body> {
       if (e.response != null) {
         print(e.response.data);
         print(e.response.headers);
-        print(e.response.request);
+        // print(e.response.request);
       } else {
         // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
+        // print(e.request);
         print(e.message);
       }
     } finally {
@@ -564,10 +653,10 @@ class _BodyState extends State<Body> {
       if (e.response != null) {
         print(e.response.data);
         print(e.response.headers);
-        print(e.response.request);
+        // print(e.response.request);
       } else {
         // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
+        // print(e.request);
         print(e.message);
       }
     } finally {
@@ -649,10 +738,10 @@ class _BodyState extends State<Body> {
       if (e.response != null) {
         print(e.response.data);
         print(e.response.headers);
-        print(e.response.request);
+        // print(e.response.request);
       } else {
         // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
+        // print(e.request);
         print(e.message);
       }
     } finally {
@@ -729,6 +818,7 @@ class _BodyState extends State<Body> {
   //     });
   //   });
   // }
+
   @override
   Widget build(BuildContext context) {
     // it provide us total height and width
@@ -1182,14 +1272,99 @@ class _BodyState extends State<Body> {
                   controller: _controllerPhone,
                   decoration: InputDecoration(
                     icon: Icon(Icons.phone),
-                    labelText: 'Phone Number (0712345678)',
+                    labelText: 'Phone Number (254 712 345 678)',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
                   ),
                   inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(10),
-                    WhitelistingTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(12),
                   ],
                 ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    DialogButton(
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      // color: Color.fromRGBO(240, 9, 4, 1.0),
+                      color: Colors.red,
+                      width: 120,
+                    ),
+                    DialogButton(
+                      onPressed: () async {
+                        // _postTruck();
+                        // setState(() {
+                        //   buttonStateFloorPlan = false;
+                        // });
+                        // _buttonFalse();
+                        setState(() {
+                          buttonStateFloorPlan = false;
+                        });
+                        Navigator.of(context, rootNavigator: true).pop();
+                        _show500();
+
+                        print(buttonStateFloorPlan);
+                        print("button pressed");
+                        // _success();
+                        Response responsePhone = await dio.post(
+                            "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
+                            data: {"number": _controllerPhone.text});
+
+                        SafPostModel res =
+                            SafPostModel.fromJson(responsePhone.data);
+
+                        setState(() {
+                          checkoutRequestId = res.checkoutRequestId;
+                        });
+                        print(res.responseCode);
+                        print(checkoutRequestId);
+                        if (res.responseCode == '0') {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          setState(() {
+                            buttonStateFloorPlan = true;
+                          });
+                          _show500();
+                          // _buttonTrue();
+                          print('object worked');
+                          _verify();
+                        } else {
+                          print('object failed');
+                          // _verify();
+                          setState(() {
+                            buttonStateFloorPlan = true;
+                          });
+                          // _buttonTrue();
+                          _failed();
+                        }
+
+                        // _failed();
+                        // Navigator.of(context, rootNavigator: true).pop();
+                        // Navigator.of(context).pushNamed(
+                        //   '/home',
+                        //   // arguments: 'Hello there from the first page!',
+                        // );
+                        // Navigator.pop(context);
+                        //         // closeFunction();
+                      },
+                      // child: buttonStateFloorPlan ? Text(
+                      //   "Buy",
+                      //   style: TextStyle(color: Colors.white, fontSize: 20),
+                      // ) : CircularProgressIndicator(),
+                      child: Text(
+                        "Buy",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                      color: Colors.green,
+                      width: 120,
+                    ),
+                  ],
+                ),
+
                 // TextField(
                 //   // obscureText: true,
                 //   // onChanged: (value) {
@@ -1206,21 +1381,20 @@ class _BodyState extends State<Body> {
             buttons: [
                 DialogButton(
                   child: Text(
-                    "mobile",
+                    "Pay With Mastercard / VISA",
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
-                  onPressed: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MobileMoney())),
-                  // color: Color.fromRGBO(240, 9, 4, 1.0),
-                  color: Colors.red,
-                ),
-                DialogButton(
-                  child: Text(
-                    "Cancel",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  onPressed: () =>
-                      Navigator.of(context, rootNavigator: true).pop(),
+                  onPressed: () {
+                    _creditCard();
+                    // Navigator.push(context,
+                    //     MaterialPageRoute(builder: (context) => Payment()));
+                    // Payment();
+                    // _payment2();
+                  },
+                  // onPressed: () => Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => Page2()),
+                  // ),
                   // color: Color.fromRGBO(240, 9, 4, 1.0),
                   color: Colors.red,
                 ),
@@ -1245,72 +1419,72 @@ class _BodyState extends State<Body> {
                 //   color: Colors.red,
                 // ),
 
-                DialogButton(
-                  onPressed: () async {
-                    // _postTruck();
-                    // setState(() {
-                    //   buttonStateFloorPlan = false;
-                    // });
-                    // _buttonFalse();
-                    setState(() {
-                      buttonStateFloorPlan = false;
-                    });
-                    Navigator.of(context, rootNavigator: true).pop();
-                    _show500();
+                // DialogButton(
+                //   onPressed: () async {
+                //     // _postTruck();
+                //     // setState(() {
+                //     //   buttonStateFloorPlan = false;
+                //     // });
+                //     // _buttonFalse();
+                //     setState(() {
+                //       buttonStateFloorPlan = false;
+                //     });
+                //     Navigator.of(context, rootNavigator: true).pop();
+                //     _show500();
 
-                    print(buttonStateFloorPlan);
-                    print("button pressed");
-                    // _success();
-                    Response responsePhone = await dio.post(
-                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
-                        data: {"number": _controllerPhone.text});
+                //     print(buttonStateFloorPlan);
+                //     print("button pressed");
+                //     // _success();
+                //     Response responsePhone = await dio.post(
+                //         "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
+                //         data: {"number": _controllerPhone.text});
 
-                    SafPostModel res =
-                        SafPostModel.fromJson(responsePhone.data);
+                //     SafPostModel res =
+                //         SafPostModel.fromJson(responsePhone.data);
 
-                    setState(() {
-                      checkoutRequestId = res.checkoutRequestId;
-                    });
-                    print(res.responseCode);
-                    print(checkoutRequestId);
-                    if (res.responseCode == '0') {
-                      Navigator.of(context, rootNavigator: true).pop();
-                      setState(() {
-                        buttonStateFloorPlan = true;
-                      });
-                      _show500();
-                      // _buttonTrue();
-                      print('object worked');
-                      _verify();
-                    } else {
-                      print('object failed');
-                      // _verify();
-                      setState(() {
-                        buttonStateFloorPlan = true;
-                      });
-                      // _buttonTrue();
-                      _failed();
-                    }
+                //     setState(() {
+                //       checkoutRequestId = res.checkoutRequestId;
+                //     });
+                //     print(res.responseCode);
+                //     print(checkoutRequestId);
+                //     if (res.responseCode == '0') {
+                //       Navigator.of(context, rootNavigator: true).pop();
+                //       setState(() {
+                //         buttonStateFloorPlan = true;
+                //       });
+                //       _show500();
+                //       // _buttonTrue();
+                //       print('object worked');
+                //       _verify();
+                //     } else {
+                //       print('object failed');
+                //       // _verify();
+                //       setState(() {
+                //         buttonStateFloorPlan = true;
+                //       });
+                //       // _buttonTrue();
+                //       _failed();
+                //     }
 
-                    // _failed();
-                    // Navigator.of(context, rootNavigator: true).pop();
-                    // Navigator.of(context).pushNamed(
-                    //   '/home',
-                    //   // arguments: 'Hello there from the first page!',
-                    // );
-                    // Navigator.pop(context);
-                    //         // closeFunction();
-                  },
-                  // child: buttonStateFloorPlan ? Text(
-                  //   "Buy",
-                  //   style: TextStyle(color: Colors.white, fontSize: 20),
-                  // ) : CircularProgressIndicator(),
-                  child: Text(
-                    "Buy",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  color: Colors.green,
-                )
+                //     // _failed();
+                //     // Navigator.of(context, rootNavigator: true).pop();
+                //     // Navigator.of(context).pushNamed(
+                //     //   '/home',
+                //     //   // arguments: 'Hello there from the first page!',
+                //     // );
+                //     // Navigator.pop(context);
+                //     //         // closeFunction();
+                //   },
+                //   // child: buttonStateFloorPlan ? Text(
+                //   //   "Buy",
+                //   //   style: TextStyle(color: Colors.white, fontSize: 20),
+                //   // ) : CircularProgressIndicator(),
+                //   child: Text(
+                //     "Buy",
+                //     style: TextStyle(color: Colors.white, fontSize: 20),
+                //   ),
+                //   color: Colors.green,
+                // ),
               ]).show()
         : Alert(
             context: context,
@@ -1326,11 +1500,11 @@ class _BodyState extends State<Body> {
                   controller: _controllerPhone,
                   decoration: InputDecoration(
                     icon: Icon(Icons.phone),
-                    labelText: 'Phone Number (0712345678)',
+                    labelText: 'Phone Number (254 712 345 678)',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
                   ),
                   inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(10),
+                    LengthLimitingTextInputFormatter(12),
                     WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
@@ -1447,11 +1621,11 @@ class _BodyState extends State<Body> {
                   controller: _controllerPhoneBasic,
                   decoration: InputDecoration(
                     icon: Icon(Icons.phone),
-                    labelText: 'Phone Number (0712345678)',
+                    labelText: 'Phone Number (254 712 345 678)',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
                   ),
                   inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(10),
+                    LengthLimitingTextInputFormatter(12),
                     WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
@@ -1466,67 +1640,95 @@ class _BodyState extends State<Body> {
                 //     labelText: 'Current Location',
                 //   ),
                 // ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    DialogButton(
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      // color: Color.fromRGBO(240, 9, 4, 1.0),
+                      color: Colors.red,
+                      width: 120,
+                    ),
+                    DialogButton(
+                      onPressed: () async {
+                        setState(() {
+                          buttonStateBasic = false;
+                        });
+                        Navigator.of(context, rootNavigator: true).pop();
+                        _showPlan();
+
+                        print(buttonStateBasic);
+                        print("button pressed");
+                        // _success();
+                        Response responsePhone = await dio.post(
+                            "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
+                            data: {"number": _controllerPhoneBasic.text});
+
+                        SafPostModel res =
+                            SafPostModel.fromJson(responsePhone.data);
+
+                        setState(() {
+                          checkoutRequestId = res.checkoutRequestId;
+                        });
+                        print(res.responseCode);
+                        print(checkoutRequestId);
+                        if (res.responseCode == '0') {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          setState(() {
+                            buttonStateBasic = true;
+                          });
+                          _showPlan();
+                          // _buttonTrue();
+                          print('object worked');
+                          _verifyBasic();
+                        } else {
+                          print('object failed');
+                          // _verify();
+                          setState(() {
+                            buttonStateBasic = true;
+                          });
+                          // _buttonTrue();
+                          _failed();
+                        }
+                      },
+                      child: Text(
+                        "Buy",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                      color: Colors.green,
+                      width: 120,
+                    )
+                  ],
+                )
               ],
             ),
             buttons: [
                 DialogButton(
                   child: Text(
-                    "Cancel",
+                    "Pay With Mastercard / VISA",
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
-                  onPressed: () =>
-                      Navigator.of(context, rootNavigator: true).pop(),
+                  onPressed: () {
+                    _creditCardZip();
+                    // Navigator.push(context,
+                    //     MaterialPageRoute(builder: (context) => Payment()));
+                    // Payment();
+                    // _payment2();
+                  },
+                  // onPressed: () => Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => Page2()),
+                  // ),
                   // color: Color.fromRGBO(240, 9, 4, 1.0),
                   color: Colors.red,
                 ),
-                DialogButton(
-                  onPressed: () async {
-                    setState(() {
-                      buttonStateBasic = false;
-                    });
-                    Navigator.of(context, rootNavigator: true).pop();
-                    _showPlan();
-
-                    print(buttonStateBasic);
-                    print("button pressed");
-                    // _success();
-                    Response responsePhone = await dio.post(
-                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
-                        data: {"number": _controllerPhoneBasic.text});
-
-                    SafPostModel res =
-                        SafPostModel.fromJson(responsePhone.data);
-
-                    setState(() {
-                      checkoutRequestId = res.checkoutRequestId;
-                    });
-                    print(res.responseCode);
-                    print(checkoutRequestId);
-                    if (res.responseCode == '0') {
-                      Navigator.of(context, rootNavigator: true).pop();
-                      setState(() {
-                        buttonStateBasic = true;
-                      });
-                      _showPlan();
-                      // _buttonTrue();
-                      print('object worked');
-                      _verifyBasic();
-                    } else {
-                      print('object failed');
-                      // _verify();
-                      setState(() {
-                        buttonStateBasic = true;
-                      });
-                      // _buttonTrue();
-                      _failed();
-                    }
-                  },
-                  child: Text(
-                    "Buy",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  color: Colors.green,
-                )
               ]).show()
         : Alert(
             context: context,
@@ -1542,11 +1744,11 @@ class _BodyState extends State<Body> {
                   controller: _controllerPhoneBasic,
                   decoration: InputDecoration(
                     icon: Icon(Icons.phone),
-                    labelText: 'Phone Number (0712345678)',
+                    labelText: 'Phone Number (254 712 345 678)',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
                   ),
                   inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(10),
+                    LengthLimitingTextInputFormatter(12),
                     WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
@@ -1600,14 +1802,81 @@ class _BodyState extends State<Body> {
                   controller: _controllerPhonePremium,
                   decoration: InputDecoration(
                     icon: Icon(Icons.phone),
-                    labelText: 'Phone Number (0712345678)',
+                    labelText: 'Phone Number (254 712 345 678)',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
                   ),
                   inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(10),
+                    LengthLimitingTextInputFormatter(12),
                     WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    DialogButton(
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pop(),
+                      // color: Color.fromRGBO(240, 9, 4, 1.0),
+                      color: Colors.red,
+                      width: 120,
+                    ),
+                    DialogButton(
+                      onPressed: () async {
+                        setState(() {
+                          buttonStatePremium = false;
+                        });
+                        Navigator.of(context, rootNavigator: true).pop();
+                        _showCad();
+
+                        print(buttonStatePremium);
+                        print("button pressed");
+                        // _success();
+                        Response responsePhone = await dio.post(
+                            "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
+                            data: {"number": _controllerPhonePremium.text});
+
+                        SafPostModel res =
+                            SafPostModel.fromJson(responsePhone.data);
+
+                        setState(() {
+                          checkoutRequestId = res.checkoutRequestId;
+                        });
+                        print(res.responseCode);
+                        print(checkoutRequestId);
+                        if (res.responseCode == '0') {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          setState(() {
+                            buttonStatePremium = true;
+                          });
+                          _showCad();
+                          // _buttonTrue();
+                          print('object worked');
+                          _verifyPremium();
+                        } else {
+                          print('object failed');
+                          // _verify();
+                          setState(() {
+                            buttonStatePremium = true;
+                          });
+                          // _buttonTrue();
+                          _failed();
+                        }
+                      },
+                      child: Text(
+                        "Buy",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                      color: Colors.green,
+                      width: 120,
+                    )
+                  ],
+                )
                 // TextField(
                 //   // obscureText: true,
                 //   // onChanged: (value) {
@@ -1624,62 +1893,23 @@ class _BodyState extends State<Body> {
             buttons: [
                 DialogButton(
                   child: Text(
-                    "Cancel",
+                    "Pay With Mastercard / VISA",
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
-                  onPressed: () =>
-                      Navigator.of(context, rootNavigator: true).pop(),
+                  onPressed: () {
+                    _creditCardArch();
+                    // Navigator.push(context,
+                    //     MaterialPageRoute(builder: (context) => Payment()));
+                    // Payment();
+                    // _payment2();
+                  },
+                  // onPressed: () => Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => Page2()),
+                  // ),
                   // color: Color.fromRGBO(240, 9, 4, 1.0),
                   color: Colors.red,
                 ),
-                DialogButton(
-                  onPressed: () async {
-                    setState(() {
-                      buttonStatePremium = false;
-                    });
-                    Navigator.of(context, rootNavigator: true).pop();
-                    _showCad();
-
-                    print(buttonStatePremium);
-                    print("button pressed");
-                    // _success();
-                    Response responsePhone = await dio.post(
-                        "https://mwambaapp.mwambabuilders.com/mwambaApp/api/sendNumber",
-                        data: {"number": _controllerPhonePremium.text});
-
-                    SafPostModel res =
-                        SafPostModel.fromJson(responsePhone.data);
-
-                    setState(() {
-                      checkoutRequestId = res.checkoutRequestId;
-                    });
-                    print(res.responseCode);
-                    print(checkoutRequestId);
-                    if (res.responseCode == '0') {
-                      Navigator.of(context, rootNavigator: true).pop();
-                      setState(() {
-                        buttonStatePremium = true;
-                      });
-                      _showCad();
-                      // _buttonTrue();
-                      print('object worked');
-                      _verifyPremium();
-                    } else {
-                      print('object failed');
-                      // _verify();
-                      setState(() {
-                        buttonStatePremium = true;
-                      });
-                      // _buttonTrue();
-                      _failed();
-                    }
-                  },
-                  child: Text(
-                    "Buy",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  color: Colors.green,
-                )
               ]).show()
         : Alert(
             context: context,
@@ -1696,11 +1926,11 @@ class _BodyState extends State<Body> {
                   // controller: _controllerPhone,
                   decoration: InputDecoration(
                     icon: Icon(Icons.phone),
-                    labelText: 'Phone Number (0712345678)',
+                    labelText: 'Phone Number (254 712 345 678)',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
                   ),
                   inputFormatters: <TextInputFormatter>[
-                    LengthLimitingTextInputFormatter(10),
+                    LengthLimitingTextInputFormatter(12),
                     WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
@@ -1776,7 +2006,7 @@ class _BodyState extends State<Body> {
                     });
                     _verify();
                     print("hello 2");
-                    _success();
+                    success();
                   } else {
                     Navigator.of(context, rootNavigator: true).pop();
                     setState(() {
@@ -1994,7 +2224,7 @@ class _BodyState extends State<Body> {
           ).show();
   }
 
-  _success() {
+  success() {
     buttonPlanDownload
         ? Alert(
             context: context,
@@ -2015,11 +2245,13 @@ class _BodyState extends State<Body> {
                 ),
                 // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
                 onPressed: () async {
+                  context.read<Counter>().successUpdateFalse();
                   setState(() {
                     buttonPlanDownload = false;
                   });
+                  // context.read<Counter>().successUpdateFalse();
                   Navigator.of(context, rootNavigator: true).pop();
-                  _success();
+                  success();
                   downloadFileFloorPlan(
                       uriFloorPlan, filenameFloorPlan, resultFloorPlan);
                   // setState(() {
@@ -2061,6 +2293,74 @@ class _BodyState extends State<Body> {
             ],
           ).show();
   }
+
+  // _success() {
+  //   buttonPlanDownload
+  //       ? Alert(
+  //           context: context,
+  //           type: AlertType.success,
+  //           title: "Transaction Successful \n \n $progressFloorPlan%",
+  //           desc: isDownloadedFloorPlan
+  //               ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+  //               : "Click Button To Download.",
+  //           buttons: [
+  //             DialogButton(
+  //               child: Row(
+  //                 children: [
+  //                   Text(
+  //                     "Download File",
+  //                     style: TextStyle(color: Colors.white, fontSize: 18),
+  //                   ),
+  //                 ],
+  //               ),
+  //               // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+  //               onPressed: () async {
+  //                 setState(() {
+  //                   buttonPlanDownload = false;
+  //                 });
+  //                 Navigator.of(context, rootNavigator: true).pop();
+  //                 _success();
+  //                 downloadFileFloorPlan(
+  //                     uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+  //                 // setState(() {
+  //                 //   isDownloadedFloorPlan = false;
+  //                 // });
+  //               },
+  //               width: 120,
+  //             )
+  //           ],
+  //         ).show()
+  //       : Alert(
+  //           context: context,
+  //           type: AlertType.success,
+  //           title: "File is Downloading",
+  //           desc: isDownloadedFloorPlan
+  //               ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+  //               : "Close Dialogs To View Download.",
+  //           buttons: [
+  //             DialogButton(
+  //               child: Column(
+  //                 children: [
+  //                   Text(
+  //                     "OK",
+  //                     style: TextStyle(color: Colors.white, fontSize: 22),
+  //                   ),
+  //                 ],
+  //               ),
+  //               onPressed: () =>
+  //                   Navigator.of(context, rootNavigator: true).pop(),
+  //               // onPressed: () async{
+
+  //               //   downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+  //               //   // setState(() {
+  //               //   //   isDownloadedFloorPlan = false;
+  //               //   // });
+  //               // },
+  //               width: 120,
+  //             )
+  //           ],
+  //         ).show();
+  // }
 
   _successBasic() {
     buttonBasicDownload
@@ -2214,5 +2514,996 @@ class _BodyState extends State<Body> {
         )
       ],
     ).show();
+  }
+
+  _creditCard() {
+    // final paypal1 = context.watch<Counter>().paypal;
+    webPay
+        ? Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Credit Card Details",
+            // desc: "Network Error Kindly Try Again.",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  controller: _controllerFirstName,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.person),
+                    labelText: 'First Name',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                ),
+                // Countme(),
+                // print(something),
+                TextField(
+                  controller: _controllerLastName,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.person),
+                    labelText: 'Last Name',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                ),
+                TextField(
+                  controller: _controllerEmail,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.email),
+                    labelText: 'Email',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                )
+              ],
+            ),
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Pay",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Page2(
+                            firstName: _controllerFirstName.text,
+                            lastName: _controllerLastName.text,
+                            email: _controllerEmail.text)),
+                  );
+                  setState(() {
+                    somethingElse = true;
+                  });
+                  // Navigator.of(context, rootNavigator: true).pop();
+                  // _creditCard();
+
+                  // print("the paypal is: $paypal");
+                  // Navigator.of(context).pop();
+                },
+
+                // onPressed: () {
+                //   Page2(
+                //       firstName: _controllerFirstName.text,
+                //       lastName: _controllerLastName.text,
+                //       email: _controllerEmail.text);
+                //   // Navigator.of(context).pop();
+                //   // _success();
+                // },
+                // onPressed: () => _payment2(),
+                width: 120,
+              ),
+              DialogButton(
+                child: Text(
+                  "Download",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _creditCard();
+                  setState(() {
+                    somethingElse = true;
+                  });
+
+                  // _creditCard();
+
+                  // print("the paypal is: $paypal");
+                  // Navigator.of(context).pop();
+                },
+
+                // onPressed: () {
+                //   Page2(
+                //       firstName: _controllerFirstName.text,
+                //       lastName: _controllerLastName.text,
+                //       email: _controllerEmail.text);
+                //   // Navigator.of(context).pop();
+                //   // _success();
+                // },
+                // onPressed: () => _payment2(),
+                width: 120,
+              )
+            ],
+          ).show()
+        : success();
+  }
+
+  _creditCardZip() {
+    // final paypal1 = context.watch<Counter>().paypal;
+    zipPay
+        ? Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Credit Card Details",
+            // desc: "Network Error Kindly Try Again.",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  controller: _controllerFirstName,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.person),
+                    labelText: 'First Name',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                ),
+                // Countme(),
+                // print(something),
+                TextField(
+                  controller: _controllerLastName,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.person),
+                    labelText: 'Last Name',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                ),
+                TextField(
+                  controller: _controllerEmail,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.email),
+                    labelText: 'Email',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                )
+              ],
+            ),
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Pay",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PageZip(
+                            firstName: _controllerFirstName.text,
+                            lastName: _controllerLastName.text,
+                            email: _controllerEmail.text)),
+                  );
+                  setState(() {
+                    somethingElse = true;
+                  });
+                  // Navigator.of(context, rootNavigator: true).pop();
+                  // _creditCard();
+
+                  // print("the paypal is: $paypal");
+                  // Navigator.of(context).pop();
+                },
+
+                // onPressed: () {
+                //   Page2(
+                //       firstName: _controllerFirstName.text,
+                //       lastName: _controllerLastName.text,
+                //       email: _controllerEmail.text);
+                //   // Navigator.of(context).pop();
+                //   // _success();
+                // },
+                // onPressed: () => _payment2(),
+                width: 120,
+              ),
+              DialogButton(
+                child: Text(
+                  "Download",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _creditCardZip();
+                  setState(() {
+                    somethingElse = true;
+                  });
+
+                  // _creditCard();
+
+                  // print("the paypal is: $paypal");
+                  // Navigator.of(context).pop();
+                },
+
+                // onPressed: () {
+                //   Page2(
+                //       firstName: _controllerFirstName.text,
+                //       lastName: _controllerLastName.text,
+                //       email: _controllerEmail.text);
+                //   // Navigator.of(context).pop();
+                //   // _success();
+                // },
+                // onPressed: () => _payment2(),
+                width: 120,
+              )
+            ],
+          ).show()
+        : _successBasic();
+  }
+
+  _creditCardArch() {
+    // final paypal1 = context.watch<Counter>().paypal;
+    archPay
+        ? Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Credit Card Details",
+            // desc: "Network Error Kindly Try Again.",
+            content: Column(
+              children: <Widget>[
+                TextField(
+                  controller: _controllerFirstName,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.person),
+                    labelText: 'First Name',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                ),
+                // Countme(),
+                // print(something),
+                TextField(
+                  controller: _controllerLastName,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.person),
+                    labelText: 'Last Name',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                ),
+                TextField(
+                  controller: _controllerEmail,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.email),
+                    labelText: 'Email',
+                    // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+                  ),
+                  inputFormatters: <TextInputFormatter>[],
+                )
+              ],
+            ),
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Pay",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PageArch(
+                            firstName: _controllerFirstName.text,
+                            lastName: _controllerLastName.text,
+                            email: _controllerEmail.text)),
+                  );
+                  setState(() {
+                    somethingElse = true;
+                  });
+                  // Navigator.of(context, rootNavigator: true).pop();
+                  // _creditCard();
+
+                  // print("the paypal is: $paypal");
+                  // Navigator.of(context).pop();
+                },
+
+                // onPressed: () {
+                //   Page2(
+                //       firstName: _controllerFirstName.text,
+                //       lastName: _controllerLastName.text,
+                //       email: _controllerEmail.text);
+                //   // Navigator.of(context).pop();
+                //   // _success();
+                // },
+                // onPressed: () => _payment2(),
+                width: 120,
+              ),
+              DialogButton(
+                child: Text(
+                  "Download",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  _creditCardArch();
+                  setState(() {
+                    somethingElse = true;
+                  });
+
+                  // _creditCard();
+
+                  // print("the paypal is: $paypal");
+                  // Navigator.of(context).pop();
+                },
+
+                // onPressed: () {
+                //   Page2(
+                //       firstName: _controllerFirstName.text,
+                //       lastName: _controllerLastName.text,
+                //       email: _controllerEmail.text);
+                //   // Navigator.of(context).pop();
+                //   // _success();
+                // },
+                // onPressed: () => _payment2(),
+                width: 120,
+              )
+            ],
+          ).show()
+        : _successPremium();
+  }
+
+  _payment2() {
+    WebView(
+      initialUrl:
+          'https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=kem&last_name=mir&email=kem@g.com',
+      onWebViewCreated: (controller) {
+        _controller = controller;
+      },
+      javascriptMode: JavascriptMode.unrestricted,
+      onPageFinished: (_) {
+        _readJS();
+        // Navigator.of(context).pop();
+      },
+    );
+    // return Scaffold(
+    //     appBar: AppBar(
+    //       // Here we take the value from the MyHomePage object that was created by
+    //       // the App.build method, and use it to set our appbar title.
+    //       title: Text("Payment Gateway"),
+    //     ),
+    //     body: WebView(
+    //       initialUrl:
+    //           'https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=kem&last_name=mir&email=kem@g.com',
+    //       onWebViewCreated: (controller) {
+    //         _controller = controller;
+    //       },
+    //       javascriptMode: JavascriptMode.unrestricted,
+    //       onPageFinished: (_) {
+    //         _readJS();
+    //         // Navigator.of(context).pop();
+    //       },
+    //     ));
+  }
+
+  _payment() {
+    return Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text("Payment Gateway"),
+        ),
+        body: WebView(
+          initialUrl:
+              'https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=kem&last_name=mir&email=kem@g.com',
+          onWebViewCreated: (controller) {
+            _controller = controller;
+          },
+          javascriptMode: JavascriptMode.unrestricted,
+          onPageFinished: (_) {
+            _readJS();
+            // Navigator.of(context).pop();
+          },
+        ));
+  }
+
+  _readJS() async {
+    String html = await _controller.evaluateJavascript(
+        "window.document.getElementsByTagName('td')[0].innerHTML;");
+    print(html);
+    print('"Amount:"');
+    String am = '"COMPLETED"';
+    print(am == html);
+    // if (html == '"Amount"') {
+    //   Navigator.of(context).pop();
+    // }
+    if (am == html) {
+      Navigator.of(context).pop();
+      success();
+    }
+    // return html;
+  }
+}
+
+WebViewController _controller;
+WebViewController _controller2;
+WebViewController _controller3;
+
+void readJS(context) async {
+  String html = await _controller?.evaluateJavascript(
+      "window.document.getElementsByTagName('td')[0].innerHTML;");
+  print(html);
+  print('"Amount:"');
+  String am = '"COMPLETED"';
+  // String am = 'null';
+  print(am == html);
+  // if (html == '"Amount"') {
+  //   Navigator.of(context).pop();
+  // }
+  if (am == html) {
+    Navigator.of(context).pop();
+    context.read<Counter>().paypalFalse();
+    // setState(() {
+    //   buttonPlanDownload = false;
+    // });
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => _BodyState()._success()),
+    // );
+    // _BodyState()._success();
+  }
+  // return html;
+}
+
+class CreditCard extends Body {
+  // @override
+  Widget build(BuildContext context) {
+    bool paypay = context.watch<Counter>().paypal;
+    // _BodyState.success();
+    return _BodyState().success();
+    // return Container(
+    //   child: Text('Credit Card'),
+    // );
+  }
+}
+
+class Page2 extends StatefulWidget {
+  final String firstName, lastName, email;
+
+  const Page2({Key key, this.firstName, this.lastName, this.email})
+      : super(key: key);
+
+  @override
+  State<Page2> createState() => _Page2State();
+}
+
+class _Page2State extends State<Page2> {
+  // final Set<Factory> gestureRecognizers =
+  //     [Factory(() => EagerGestureRecognizer())].toSet();
+
+  // UniqueKey _key = UniqueKey();
+
+  Widget build(BuildContext context) {
+    // setState(() {
+    //   buttonPlanDownload = false;
+    // });
+    print("my name is ${widget.firstName}");
+
+    return Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text("Payment Gateway"),
+        ),
+        body: WebView(
+          // key: _key,
+          // http://golang.mwambabuilders.com/pesapalPHPExample/redirect.php/?pesapal_transaction_tracking_id=9200b209-f8a8-4d27-826f-88521d518734&pesapal_merchant_reference=002
+          // http://golang.mwambabuilders.com/pesapalPHPExample/redirect.php/?pesapal_transaction_tracking_id=9200b209-f8a8-4d27-826f-88521d518734&pesapal_merchant_reference=002
+          // https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=$firstName&last_name=$lastName&email=$email
+          initialUrl:
+              'https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=${widget.firstName}&last_name=${widget.lastName}&email=${widget.email}',
+
+          // gestureRecognizers: gestureRecognizers,
+
+          onWebViewCreated: (controller) {
+            _controller = controller;
+          },
+          javascriptMode: JavascriptMode.unrestricted,
+
+          onPageFinished: (_) async {
+            // readJS(context); evaluateJavascript runJavascriptReturningResult
+            String html = await _controller.evaluateJavascript(
+                "window.document.getElementsByTagName('h3')[0].innerHTML;");
+            print(html);
+            print('"Amount:"');
+            String am = '"COMPLETED"';
+            // String am = 'null';
+            print(am == html);
+            print(html);
+            print(am);
+            // if (html == '"Amount"') {
+            //   Navigator.of(context).pop();
+            // }
+            if (am == html) {
+              Navigator.of(context).pop();
+              setState(() {
+                webPay = false;
+              });
+              // _BodyState().success();
+              context.read<Counter>().paypalFalse();
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => _BodyState().success()),
+              // );
+              // _BodyState().success();
+              // Countme1();
+              print('Amount2: ');
+
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => _BodyState()._success()),
+              // );
+              // _BodyState()._success();
+            }
+            // Navigator.of(context).pop();
+          },
+        ));
+  }
+}
+
+class Countme extends StatelessWidget {
+  const Countme({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+
+        /// Calls `context.watch` to make [Count] rebuild when [Counter] changes.
+        '${context.watch<Counter>().paypal}',
+        key: const Key('counterState'),
+        style: Theme.of(context).textTheme.headline4);
+  }
+}
+
+class Payment extends StatelessWidget {
+  const Payment({Key key}) : super(key: key);
+
+  // Future<void> downloadFileFloorPlan(
+  //     uriFloorPlan, filenameFloorPlan, resultFloorPlan) async {
+  //   setState(() {
+  //     isDownloadedFloorPlan = true;
+  //   });
+
+  //   String savePath = await getFilePathFloorPlan(filenameFloorPlan);
+
+  //   // Dio dio = Dio();
+  //   print('object is through');
+  //   // response = await dio.download("https://www.google.com/", "./xx.html");
+
+  //   try {
+  //     Response response = await dio.download(
+  //       uriFloorPlan,
+  //       savePath,
+  //       onReceiveProgress: (rcv, total) {
+  //         print(total);
+  //         print(
+  //             'received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
+  //         print('object prog');
+  //         setState(() {
+  //           _goBack = false;
+  //           progressFloorPlan = ((rcv / total) * 100).toStringAsFixed(0);
+  //           print('progress');
+  //         });
+
+  //         if (progressFloorPlan == '100') {
+  //           setState(() {
+  //             _goBack = true;
+  //             isDownloadedFloorPlan = true;
+  //             directoryFloorPlan = savePath;
+  //             // progress = '100';
+  //           });
+  //         } else if (double.parse(progressFloorPlan) < 100) {}
+  //       },
+  //       deleteOnError: true,
+  //     );
+  //     // handling the notification
+  //     // try {
+  //     //   PutModel res = PutModel.fromJson(response.data);
+  //     //   print(res.code);
+  //     // } catch (e) {
+
+  //     // }
+
+  //     result['isSuccess'] = response.statusCode == 200;
+  //     // result['filePath'] = '${dir.first.path}';
+  //     result['filePath'] = savePath;
+  //     // StorageDirectory type = StorageDirectory.downloads;
+  //     // List<Directory> dir = await getExternalStorageDirectories(type: type);
+  //     // // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
+
+  //     // var so = PutModel.fromJson(jsonDecode(response.data));
+  //     // var some = response;
+  //     // print(response.data);
+  //   } on DioError catch (e) {
+  //     print('object that i dont know');
+  //     setState(() {
+  //       _goBack = true;
+  //       isDownloadedFloorPlan = false;
+  //       directoryFloorPlan = savePath;
+  //       progressFloorPlan = "-";
+  //       // progress = '100';
+  //     });
+  //     // The request was made and the server responded with a status code
+  //     // that falls out of the range of 2xx and is also not 304.
+  //     if (e.response != null) {
+  //       print(e.response.data);
+  //       print(e.response.headers);
+  //       // print(e.response.request);
+  //     } else {
+  //       // Something happened in setting up or sending the request that triggered an Error
+  //       // print(e.request);
+  //       print(e.message);
+  //     }
+  //   } finally {
+  //     // await _showNotification(result);
+  //   }
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    TextEditingController _controllerFirstName = TextEditingController();
+    TextEditingController _controllerLastName = TextEditingController();
+    TextEditingController _controllerEmail = TextEditingController();
+
+    print("value of me");
+
+    String progressFloorPlan;
+    progressFloorPlan = '-';
+
+    bool isDownloadedFloorPlan;
+    isDownloadedFloorPlan = false;
+
+    // something = context.watch<Counter>().paypal;
+    // bool buttonPlanDownload;
+    final buttonPlanDownload = context.watch<Counter>().buttonPlanDownload;
+
+    _suc() {
+      buttonPlanDownload
+          ? Alert(
+              context: context,
+              type: AlertType.success,
+              title: "Transaction Successful \n \n $progressFloorPlan%",
+              desc: isDownloadedFloorPlan
+                  ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+                  : "Click Button To Download.",
+              buttons: [
+                DialogButton(
+                  child: Row(
+                    children: [
+                      Text(
+                        "Download File",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                    ],
+                  ),
+                  // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+                  onPressed: () async {
+                    context.read<Counter>().successUpdateFalse();
+                    // setState(() {
+                    //   buttonPlanDownload = false;
+                    // });
+                    // context.read<Counter>().successUpdateFalse();
+                    Navigator.of(context, rootNavigator: true).pop();
+                    _suc();
+                    // downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+                    // setState(() {
+                    //   isDownloadedFloorPlan = false;
+                    // });
+                  },
+                  width: 120,
+                )
+              ],
+            ).show()
+          : Alert(
+              context: context,
+              type: AlertType.success,
+              title: "File is Downloading",
+              desc: isDownloadedFloorPlan
+                  ? 'File Downloaded! You can see your file in the Downloads\'s folder'
+                  : "Close Dialogs To View Download.",
+              buttons: [
+                DialogButton(
+                  child: Column(
+                    children: [
+                      Text(
+                        "OK",
+                        style: TextStyle(color: Colors.white, fontSize: 22),
+                      ),
+                    ],
+                  ),
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(),
+                  // onPressed: () async{
+
+                  //   downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+                  //   // setState(() {
+                  //   //   isDownloadedFloorPlan = false;
+                  //   // });
+                  // },
+                  width: 120,
+                )
+              ],
+            ).show();
+    }
+
+    _creditPay() {
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "Credit Card Details",
+        // desc: "Network Error Kindly Try Again.",
+        content: Column(
+          children: <Widget>[
+            TextField(
+              controller: _controllerFirstName,
+              decoration: InputDecoration(
+                icon: Icon(Icons.person),
+                labelText: 'First Name',
+                // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+              ),
+              inputFormatters: <TextInputFormatter>[],
+            ),
+            Countme(),
+            // print(something),
+            TextField(
+              controller: _controllerLastName,
+              decoration: InputDecoration(
+                icon: Icon(Icons.person),
+                labelText: 'Last Name',
+                // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+              ),
+              inputFormatters: <TextInputFormatter>[],
+            ),
+            TextField(
+              controller: _controllerEmail,
+              decoration: InputDecoration(
+                icon: Icon(Icons.email),
+                labelText: 'Email',
+                // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+              ),
+              inputFormatters: <TextInputFormatter>[],
+            )
+          ],
+        ),
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Pay",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Page2(
+                        firstName: _controllerFirstName.text,
+                        lastName: _controllerLastName.text,
+                        email: _controllerEmail.text)),
+              );
+              // setState(() {
+              //   paypal = context.watch<Counter>().paypal;
+              // });
+              // print("the paypal is: $paypal");
+              // Navigator.of(context).pop();
+            },
+
+            // onPressed: () {
+            //   Page2(
+            //       firstName: _controllerFirstName.text,
+            //       lastName: _controllerLastName.text,
+            //       email: _controllerEmail.text);
+            //   // Navigator.of(context).pop();
+            //   // _success();
+            // },
+            // onPressed: () => _payment2(),
+            width: 120,
+          ),
+          DialogButton(
+              child: Text(
+                "Back",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () {
+                // Navigator.of(context).pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Body()),
+                );
+                // Navigator.push(context, route)
+              })
+        ],
+      ).show();
+    }
+
+    // downloading logic for floorPlan is handled by this method
+
+    // return something;
+    // return Text(
+
+    //     /// Calls `context.watch` to make [Count] rebuild when [Counter] changes.
+    //     '${context.watch<Counter>().buttonPlanDownload}',
+    //     key: const Key('counterState'),
+    //     style: Theme.of(context).textTheme.headline4);
+    final paypal = context.watch<Counter>().paypal;
+    // var buttonPlanDownload;
+    if (paypal == true) {
+      // statement(s) will execute if the Boolean expression is true.
+      print("value of $paypal");
+      return Container(child: _creditPay());
+    } else {
+      // statement(s) will execute if the Boolean expression is false.
+      print("value of $paypal");
+      return Container(child: _suc());
+    }
+  }
+}
+
+class PageZip extends StatefulWidget {
+  final String firstName, lastName, email;
+
+  const PageZip({Key key, this.firstName, this.lastName, this.email})
+      : super(key: key);
+
+  @override
+  State<PageZip> createState() => _PageZipState();
+}
+
+class _PageZipState extends State<PageZip> {
+  // final Set<Factory> gestureRecognizers =
+  //     [Factory(() => EagerGestureRecognizer())].toSet();
+
+  // UniqueKey _key = UniqueKey();
+
+  Widget build(BuildContext context) {
+    // setState(() {
+    //   buttonPlanDownload = false;
+    // });
+    print("my name is ${widget.firstName}");
+
+    return Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text("Payment Gateway"),
+        ),
+        body: WebView(
+          // key: _key,
+          // http://golang.mwambabuilders.com/pesapalPHPExample/redirect.php/?pesapal_transaction_tracking_id=9200b209-f8a8-4d27-826f-88521d518734&pesapal_merchant_reference=002
+          // http://golang.mwambabuilders.com/pesapalPHPExample/redirect.php/?pesapal_transaction_tracking_id=9200b209-f8a8-4d27-826f-88521d518734&pesapal_merchant_reference=002
+          // https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=$firstName&last_name=$lastName&email=$email
+          initialUrl:
+              'https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=${widget.firstName}&last_name=${widget.lastName}&email=${widget.email}',
+
+          // gestureRecognizers: gestureRecognizers,
+
+          onWebViewCreated: (controller2) {
+            _controller2 = controller2;
+          },
+          javascriptMode: JavascriptMode.unrestricted,
+
+          onPageFinished: (_) async {
+            // readJS(context); evaluateJavascript runJavascriptReturningResult
+            String html2 = await _controller2.evaluateJavascript(
+                "window.document.getElementsByTagName('h3')[0].innerHTML;");
+            print(html2);
+            print('"Amount:"');
+            String am = '"COMPLETED"';
+            // String am = 'null';
+            print(am == html2);
+            // if (html == '"Amount"') {
+            //   Navigator.of(context).pop();
+            // }
+            if (am == html2) {
+              Navigator.of(context).pop();
+              setState(() {
+                zipPay = false;
+              });
+              // _BodyState().success();
+              context.read<Counter>().paypalFalse();
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => _BodyState().success()),
+              // );
+              // _BodyState().success();
+              // Countme1();
+              print('Amount2: ');
+
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => _BodyState()._success()),
+              // );
+              // _BodyState()._success();
+            }
+            // Navigator.of(context).pop();
+          },
+        ));
+  }
+}
+
+class PageArch extends StatefulWidget {
+  final String firstName, lastName, email;
+
+  const PageArch({Key key, this.firstName, this.lastName, this.email})
+      : super(key: key);
+
+  @override
+  State<PageArch> createState() => _PageArchState();
+}
+
+class _PageArchState extends State<PageArch> {
+  // final Set<Factory> gestureRecognizers =
+  //     [Factory(() => EagerGestureRecognizer())].toSet();
+
+  // UniqueKey _key = UniqueKey();
+
+  Widget build(BuildContext context) {
+    // setState(() {
+    //   buttonPlanDownload = false;
+    // });
+    print("my name is ${widget.firstName}");
+
+    return Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text("Payment Gateway"),
+        ),
+        body: WebView(
+          // key: _key,
+          // http://golang.mwambabuilders.com/pesapalPHPExample/redirect.php/?pesapal_transaction_tracking_id=9200b209-f8a8-4d27-826f-88521d518734&pesapal_merchant_reference=002
+          // http://golang.mwambabuilders.com/pesapalPHPExample/redirect.php/?pesapal_transaction_tracking_id=9200b209-f8a8-4d27-826f-88521d518734&pesapal_merchant_reference=002
+          // https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=$firstName&last_name=$lastName&email=$email
+          initialUrl:
+              'https://golang.mwambabuilders.com/pesapal-iframe.php?amount=1&description=new&type=MERCHANT&reference=002&first_name=${widget.firstName}&last_name=${widget.lastName}&email=${widget.email}',
+
+          // gestureRecognizers: gestureRecognizers,
+
+          onWebViewCreated: (controller3) {
+            _controller3 = controller3;
+          },
+          javascriptMode: JavascriptMode.unrestricted,
+
+          onPageFinished: (_) async {
+            // readJS(context); evaluateJavascript runJavascriptReturningResult
+            String html3 = await _controller3.evaluateJavascript(
+                "window.document.getElementsByTagName('h3')[0].innerHTML;");
+            print(html3);
+            print('"Amount:"');
+            String am = '"COMPLETED"';
+            // String am = 'null';
+            print(am == html3);
+            // if (html == '"Amount"') {
+            //   Navigator.of(context).pop();
+            // }
+            if (am == html3) {
+              Navigator.of(context).pop();
+              setState(() {
+                archPay = false;
+              });
+              // _BodyState().success();
+              context.read<Counter>().paypalFalse();
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => _BodyState().success()),
+              // );
+              // _BodyState().success();
+              // Countme1();
+              print('Amount2: ');
+
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => _BodyState()._success()),
+              // );
+              // _BodyState()._success();
+            }
+            // Navigator.of(context).pop();
+          },
+        ));
   }
 }
