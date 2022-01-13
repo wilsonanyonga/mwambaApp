@@ -27,29 +27,35 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.3
-  flutter_svg: ^0.22.0 #it helps us to use SVG in our app
-  google_fonts: ^1.1.0 #this allows you to easily use any fonts from fonts.google.com in your Flutter app
-  rflutter_alert: ^1.0.3
-  image_picker: any
-  http: any
-  shared_preferences: any
-  dio: any
-  path_provider: any
+  cupertino_icons: ^1.0.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  # cupertino_icons: ^0.1.3
+  flutter_svg: ^0.23.0+1 #it helps us to use SVG in our app
+  google_fonts: ^2.1.0 #this allows you to easily use any fonts from fonts.google.com in your Flutter app
+  rflutter_alert: ^2.0.4
+  image_picker: ^0.8.4+4
+  http: ^0.13.4
+  shared_preferences: ^2.0.8
+  dio: ^4.0.1
+  path_provider: ^2.0.6
   # downloads_path_provider_28: any
   # permission_handler: ^4.4.0+hotfix.2
-  open_file: ^3.0.1
-  flutter_local_notifications: ^1.3.0
+  open_file: ^3.2.1
+  flutter_local_notifications: ^9.1.0
   ext_storage: ^1.0.3 # used for getting downloads directory
 
-  dio_http_cache: ^0.2.6 #for caching data
-  cached_network_image: ^2.3.2+1 #for caching images
-  provider: ^4.3.2+2
+  dio_http_cache: ^0.3.0 #for caching data
+  cached_network_image: ^3.1.0+1 #for caching images
+  provider: ^6.0.1
 
-  pull_to_refresh: ^1.6.3 #for refreshing content of page
+  pull_to_refresh: ^2.0.0 #for refreshing content of page
 
-  permission_handler: ^5.0.1+1 # for getting permission to download.
-  flutter_downloader: ^1.5.2 # for background download
+  permission_handler: ^8.2.6 # for getting permission to download.
+  flutter_downloader: ^1.7.1 # for background download
+  flutter_form_builder: ^7.0.0 # for form builder
+  webview_flutter: 2.0.7 # for webview
 
 
 dev_dependencies:
