@@ -5,8 +5,11 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+<<<<<<< Updated upstream
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+=======
+>>>>>>> Stashed changes
 import 'package:flutter_downloader/flutter_downloader.dart';
 // import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -34,6 +37,7 @@ import 'package:ext_storage/ext_storage.dart';
 
 import 'package:provider/provider.dart';
 
+<<<<<<< Updated upstream
 import 'package:webview_flutter/webview_flutter.dart';
 
 const debug = true;
@@ -187,6 +191,9 @@ class Count extends StatelessWidget {
   }
 }
 
+=======
+const debug = true;
+>>>>>>> Stashed changes
 class Body extends StatefulWidget {
   final Result product;
 
@@ -198,15 +205,101 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   // final PutModel responseDown;
+<<<<<<< Updated upstream
 
+=======
+  
+
+  
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  String checkoutRequestId;
+  
+  bool downloading;
+  bool downloadingFloorPlan;
+  bool downloadingBasic;
+  bool downloadingPremium;
+
+  String progress;
+  String progressFloorPlan;
+  String progressBasic;
+  String progressPremium;
+
+  String directory;
+  String directoryFloorPlan;
+  String directoryBasic;
+  String directoryPremium;
+
+  String downData; // for checking contents of download url
+
+  bool isDownloaded;
+  bool isDownloadedFloorPlan;
+  bool isDownloadedBasic;
+  bool isDownloadedPremium;
+
+  String uri; // url of the file to be downloaded
+  String uriFloorPlan; // url of the file to be downloaded
+  String uriBasic; // url of the file to be downloaded
+  String uriPremium; // url of the file to be downloaded
+
+  String filename; // file name that you desire to keep
+  String filenameFloorPlan;
+  String filenameBasic;
+  String filenamePremium;
+
+  TextEditingController _controllerPhone = TextEditingController();
+  TextEditingController _controllerPhoneBasic = TextEditingController();
+  TextEditingController _controllerPhonePremium = TextEditingController();
+
+  Dio dio = Dio();
+
+  bool buttonStateFloorPlan;
+  bool buttonStateBasic;
+  bool buttonStatePremium;
+
+  bool buttonPlanDownload;
+  bool buttonBasicDownload;
+  bool buttonPremiumDownload;
+
+  bool buttonPlanVerifyDownload;
+  bool buttonBasicVerifyDownload;
+  bool buttonPremiumVerifyDownload;
+
+  
+
+  Map<String, dynamic> result;
+  Map<String, dynamic> resultFloorPlan;
+  Map<String, dynamic> resultBasic;
+  Map<String, dynamic> resultPremium;
+
+  bool _goBack;
+
+  // List<_TaskInfo> _tasks;
+  // List<_ItemHolder> _items;
+  bool _isLoading;
+  bool _permissionReady;
+  String _localPath;
+  ReceivePort _port = ReceivePort();
+
+  
+>>>>>>> Stashed changes
   // @override
   // setState(() {
   //                 buttonStateFloorPlan = true;
   //               });
   @override
   initState() {
+<<<<<<< Updated upstream
     // _prepare();
 
+=======
+
+    
+
+    // _prepare();
+
+    
+>>>>>>> Stashed changes
     // used for notification
     result = {
       'isSuccess': false,
@@ -229,12 +322,15 @@ class _BodyState extends State<Body> {
       'error': null,
     };
 
+<<<<<<< Updated upstream
     // paypal = context.read<Counter>().paypal;
     webPay = true;
     zipPay = true;
     archPay = true;
 
     somethingElse = true;
+=======
+>>>>>>> Stashed changes
     _goBack = true;
     buttonStateFloorPlan = true;
     buttonStateBasic = true;
@@ -325,6 +421,7 @@ class _BodyState extends State<Body> {
   //     }
   //   });
   // }
+<<<<<<< Updated upstream
 
   void _unbindBackgroundIsolate() {
     IsolateNameServer.removePortNameMapping('downloader_send_port');
@@ -341,6 +438,60 @@ class _BodyState extends State<Body> {
     send.send([id, status, progress]);
   }
 
+=======
+  
+  }
+
+  @override
+  void dispose() {
+    _unbindBackgroundIsolate();
+    super.dispose();
+  }
+
+  // void _bindBackgroundIsolate() {
+  //   bool isSuccess = IsolateNameServer.registerPortWithName(
+  //       _port.sendPort, 'downloader_send_port');
+  //   if (!isSuccess) {
+  //     _unbindBackgroundIsolate();
+  //     _bindBackgroundIsolate();
+  //     return;
+  //   }
+  //   _port.listen((dynamic data) {
+  //     if (debug) {
+  //       print('UI Isolate Callback: $data');
+  //     }
+  //     String id = data[0];
+  //     DownloadTaskStatus status = data[1];
+  //     int progress = data[2];
+
+  //     if (_tasks != null && _tasks.isNotEmpty) {
+  //       final task = _tasks.firstWhere((task) => task.taskId == id);
+  //       if (task != null) {
+  //         setState(() {
+  //           task.status = status;
+  //           task.progress = progress;
+  //         });
+  //       }
+  //     }
+  //   });
+  // }
+
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    if (debug) {
+      print(
+          'Background Isolate Callback: task ($id) is in status ($status) and process ($progress)');
+    }
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    send.send([id, status, progress]);
+  }
+
+>>>>>>> Stashed changes
   void _buttonTrue() {
     setState(() {
       buttonStateFloorPlan = true;
@@ -412,18 +563,29 @@ class _BodyState extends State<Body> {
     // Dio dio = Dio();
     print('object is through');
     // response = await dio.download("https://www.google.com/", "./xx.html");
-
+    
     // const debug = true;
     // WidgetsFlutterBinding.ensureInitialized();
     // await FlutterDownloader.initialize(debug: debug);
 
+<<<<<<< Updated upstream
+    // const debug = true;
+    // WidgetsFlutterBinding.ensureInitialized();
+    // await FlutterDownloader.initialize(debug: debug);
+
+=======
+>>>>>>> Stashed changes
     // // _bindBackgroundIsolate();
 
     // FlutterDownloader.registerCallback(downloadCallback);
 
     // _isLoading = true;
     // _permissionReady = false;
+<<<<<<< Updated upstream
 
+=======
+    
+>>>>>>> Stashed changes
     // String response = await FlutterDownloader.enqueue(
     //     url: uri,
     //     savedDir: savePath,
@@ -476,6 +638,7 @@ class _BodyState extends State<Body> {
       // var so = PutModel.fromJson(jsonDecode(response.data));
       // var some = response;
       // print(response.data);
+<<<<<<< Updated upstream
     } on DioError catch (e) {
       print('object that i dont know');
       setState(() {
@@ -496,6 +659,28 @@ class _BodyState extends State<Body> {
         // print(e.request);
         print(e.message);
       }
+=======
+    } on DioError catch(e) {
+        print('object that i dont know');
+        setState(() {
+          _goBack = true;
+          isDownloaded = false;
+          directory = savePath;
+          progress = "-";
+          // progress = '100';
+        });
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx and is also not 304.
+        if(e.response != null) {
+            print(e.response.data);
+            print(e.response.headers);
+            print(e.response.request);
+        } else{
+            // Something happened in setting up or sending the request that triggered an Error
+            print(e.request);
+            print(e.message);
+        }
+>>>>>>> Stashed changes
     } finally {
       // await _showNotification(result);
     }
@@ -558,6 +743,7 @@ class _BodyState extends State<Body> {
       // var so = PutModel.fromJson(jsonDecode(response.data));
       // var some = response;
       // print(response.data);
+<<<<<<< Updated upstream
     } on DioError catch (e) {
       print('object that i dont know');
       setState(() {
@@ -578,6 +764,28 @@ class _BodyState extends State<Body> {
         // print(e.request);
         print(e.message);
       }
+=======
+    } on DioError catch(e) {
+        print('object that i dont know');
+        setState(() {
+          _goBack = true;
+          isDownloadedFloorPlan = false;
+          directoryFloorPlan = savePath;
+          progressFloorPlan = "-";
+          // progress = '100';
+        });
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx and is also not 304.
+        if(e.response != null) {
+            print(e.response.data);
+            print(e.response.headers);
+            print(e.response.request);
+        } else{
+            // Something happened in setting up or sending the request that triggered an Error
+            print(e.request);
+            print(e.message);
+        }
+>>>>>>> Stashed changes
     } finally {
       // await _showNotification(result);
     }
@@ -639,6 +847,7 @@ class _BodyState extends State<Body> {
       // var so = PutModel.fromJson(jsonDecode(response.data));
       // var some = response;
       // print(response.data);
+<<<<<<< Updated upstream
     } on DioError catch (e) {
       print('object that i dont know');
       setState(() {
@@ -659,12 +868,35 @@ class _BodyState extends State<Body> {
         // print(e.request);
         print(e.message);
       }
+=======
+    } on DioError catch(e) {
+        print('object that i dont know');
+        setState(() {
+          _goBack = true;
+          isDownloadedBasic = false;
+          directoryBasic = savePath;
+          progressBasic = "-";
+          // progress = '100';
+        });
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx and is also not 304.
+        if(e.response != null) {
+            print(e.response.data);
+            print(e.response.headers);
+            print(e.response.request);
+        } else{
+            // Something happened in setting up or sending the request that triggered an Error
+            print(e.request);
+            print(e.message);
+        }
+>>>>>>> Stashed changes
     } finally {
       // await _showNotification(result);
     }
   }
 
 // downloading logic for floorPlan is handled by this method
+<<<<<<< Updated upstream
   Future<void> downloadFilePremium(
       uriPremium, filenamePremium, resultPremium) async {
     setState(() {
@@ -693,6 +925,44 @@ class _BodyState extends State<Body> {
             _goBack = false;
             progressPremium = ((rcv / total) * 100).toStringAsFixed(0);
             print('progress');
+=======
+Future<void> downloadFilePremium(uriPremium, filenamePremium, resultPremium) async {
+  setState(() {
+    isDownloadedPremium = true;
+  });
+
+  String savePath = await getFilePath(filenamePremium);
+
+  // Dio dio = Dio();
+  print('object is through /n');
+  print(uriPremium);
+  print(filenamePremium);
+  print(resultPremium);
+  // response = await dio.download("https://www.google.com/", "./xx.html");
+
+  
+
+  try {
+    Response response = await dio.download(
+      uriPremium,
+      savePath,
+      onReceiveProgress: (rcv, total) {
+        print(total);
+        print('received: ${rcv.toStringAsFixed(0)} out of total: ${total.toStringAsFixed(0)}');
+        print('object prog');
+        setState(() {
+          _goBack = false;
+          progressPremium = ((rcv / total) * 100).toStringAsFixed(0);
+          print('progress');
+        });
+
+        if (progressPremium == '100') {
+          setState(() {
+            _goBack = true;
+            isDownloadedPremium = true;
+            directoryPremium = savePath;
+            // progress = '100';
+>>>>>>> Stashed changes
           });
 
           if (progressPremium == '100') {
@@ -760,6 +1030,10 @@ class _BodyState extends State<Body> {
       path = '/storage/emulated/0/Download/$uniqueFileName';
       // path = '$dir/$uniqueFileName';
       print(path);
+<<<<<<< Updated upstream
+=======
+      
+>>>>>>> Stashed changes
     }
     return path;
     // Directory _downloadsDirectory;
@@ -788,8 +1062,24 @@ class _BodyState extends State<Body> {
       path = '/storage/emulated/0/Download/$uniqueFileName';
       // path = '$dir/$uniqueFileName';
       print(path);
+<<<<<<< Updated upstream
     }
     return path;
+=======
+      
+    }
+    return path;
+
+    // StorageDirectory type = StorageDirectory.downloads;
+    // List<Directory> dir = await getExternalStorageDirectories(type: type);
+    // // var dir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
+
+    // path = '${dir.first.path}/$uniqueFileName';
+    // // path = '$dir/$uniqueFileName';
+    // print(path);
+    // return path;
+  }
+>>>>>>> Stashed changes
 
     // StorageDirectory type = StorageDirectory.downloads;
     // List<Directory> dir = await getExternalStorageDirectories(type: type);
@@ -825,6 +1115,7 @@ class _BodyState extends State<Body> {
     Size size = MediaQuery.of(context).size;
     // it enable scrolling on small devices ... async => _goBack
     return new WillPopScope(
+<<<<<<< Updated upstream
       onWillPop: () async => _goBack
           ? _goBack
           : Alert(
@@ -859,12 +1150,47 @@ class _BodyState extends State<Body> {
                     bottomRight: Radius.circular(50),
                   ),
                 ),
+=======
+          onWillPop: () async => _goBack ? _goBack : Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Oops!",
+            desc: "Kindly wait a bit as the file is being downloaded.",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "OK I'll Wait",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () => Navigator.pop(context),
+                width: 120,
+              )
+            ],
+          ).show(),
+          child: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+                decoration: BoxDecoration(
+                  color: kBackgroundColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(50),
+                    bottomRight: Radius.circular(50),
+                  ),
+                ),
+>>>>>>> Stashed changes
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Center(
                       child: Hero(
                         tag: '${widget.product.id}',
+<<<<<<< Updated upstream
                         child: widget.product.uploadName != null
                             ? ProductPoster(
                                 size: size,
@@ -903,6 +1229,42 @@ class _BodyState extends State<Body> {
                         style: TextStyle(color: kTextLightColor),
                       ),
                     ),
+=======
+                        child: widget.product.uploadName != null ? ProductPoster(
+                          size: size,
+                          image: widget.product.uploadName,
+                        ): Container(child: Align(child: Text('Data is loading ...'))),
+                      ),
+                    ),
+                    // ListOfColors(),
+                    freePdf(),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: kDefaultPadding / 2),
+                        child: Text(
+                          widget.product.name,
+                          style: Theme.of(context).textTheme.headline6,
+                        ),
+                      ),
+                    ),
+                    // Text(
+                    //   'Ksh ${product.price}',
+                    //   style: TextStyle(
+                    //     fontSize: 18,
+                    //     fontWeight: FontWeight.w600,
+                    //     color: kSecondaryColor,
+                    //   ),
+                    // ),
+                    Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: kDefaultPadding / 2),
+                      child: Text(
+                        widget.product.description,
+                        style: TextStyle(color: kTextLightColor),
+                      ),
+                    ),
+>>>>>>> Stashed changes
                     SizedBox(height: kDefaultPadding),
                   ],
                 ),
@@ -966,6 +1328,7 @@ class _BodyState extends State<Body> {
               child: Column(
                 children: [
                   Text('$progressBasic%'),
+<<<<<<< Updated upstream
                   isDownloadedBasic
                       ? Text(
                           'File Downloaded! You can see your file in the Downloads\'s folder',
@@ -976,6 +1339,43 @@ class _BodyState extends State<Body> {
               ),
             ),
           );
+=======
+                  isDownloadedBasic ? Text(
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
+                    ) : Text("Click to Buy Plan (.zip) - Ksh ${widget.product.basicAmount}")
+                  // isDownloadedBasic ? Text(
+                  //     'File Downloaded! You can see your file in the Downloads\'s folder \n \n $directoryBasic',
+                  //   ) : Text("Click to Buy Plan (.zip) - Ksh ${widget.product.basicAmount}")
+                ],
+              ),
+            ),
+            
+          ),
+    ) :
+    Container(
+        margin: EdgeInsets.all(kDefaultPadding),
+        padding: EdgeInsets.symmetric(
+          horizontal: kDefaultPadding,
+          vertical: kDefaultPadding / 2,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.pink[300],
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Center(
+          child: Column(
+            children: [
+              Text('$progressBasic%'),
+              isDownloadedBasic ? Text(
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
+                    )
+              : Text("Floor Plan Preview Ksh ${widget.product.basicAmount}"),
+            ],
+          ),
+        ),
+        
+      );
+>>>>>>> Stashed changes
   }
 
   Widget buyCad() {
@@ -1022,6 +1422,7 @@ class _BodyState extends State<Body> {
               child: Column(
                 children: [
                   Text('$progressPremium%'),
+<<<<<<< Updated upstream
                   isDownloadedPremium
                       ? Text(
                           'File Downloaded! You can see your file in the Downloads\'s folder',
@@ -1032,17 +1433,57 @@ class _BodyState extends State<Body> {
               ),
             ),
           );
+=======
+                  isDownloadedPremium ? Text(
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
+                    ) : Text("Click to Buy ArchiCAD (Archi) - Ksh ${widget.product.premiumAmount}")
+                ],
+              ),
+            ),
+            
+          ),
+        ) : 
+        Container(
+          margin: EdgeInsets.all(kDefaultPadding),
+          padding: EdgeInsets.symmetric(
+            horizontal: kDefaultPadding,
+            vertical: kDefaultPadding / 2,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.green[300],
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Center(
+            child: Column(
+              children: [
+                Text('$progressPremium%'),
+                isDownloadedPremium ? Text(
+                        'File Downloaded! You can see your file in the Downloads\'s folder',
+                      )
+                : Text("Floor Plan Preview Ksh ${widget.product.premiumAmount}"),
+              ],
+            ),
+          ),
+          
+        );
+>>>>>>> Stashed changes
   }
 
   Widget freePdf() {
     return GestureDetector(
+<<<<<<< Updated upstream
       onTap: () async {
         Alert(
+=======
+        onTap: () async{
+          Alert(
+>>>>>>> Stashed changes
             context: context,
             title: "Other 3D Images",
             content: Column(
               children: <Widget>[
                 CachedNetworkImage(
+<<<<<<< Updated upstream
                     imageUrl:
                         "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
                     placeholder: (context, url) => CircularProgressIndicator(
@@ -1095,6 +1536,134 @@ class _BodyState extends State<Body> {
             ]).show();
         // _buttonFalse();
       },
+=======
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+                CachedNetworkImage(
+                    imageUrl: "https://mwambaapp.mwambabuilders.com/mwambaApp/api/uploads/${widget.product.uploadName}",
+                    placeholder: (context, url) => CircularProgressIndicator(strokeWidth: 2,),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover
+                ),
+              ],
+            ),
+            buttons: [
+              DialogButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              )
+            ]).show();
+          // _buttonFalse();
+        },
+        child: Container(
+          margin: EdgeInsets.all(kDefaultPadding),
+          padding: EdgeInsets.symmetric(
+            horizontal: kDefaultPadding,
+            vertical: kDefaultPadding / 2,
+          ),
+          decoration: BoxDecoration(
+            color: Color(0xFFFCBF1E),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Center(
+            child: Column(
+              children: [
+                
+                Text("View 3D Photos"),
+              ],
+            ),
+          ),
+        ),);
+
+    // return Container(
+    //   child: isDownloaded ? 
+    //   Container(
+    //       margin: EdgeInsets.all(kDefaultPadding),
+    //       padding: EdgeInsets.symmetric(
+    //         horizontal: kDefaultPadding,
+    //         vertical: kDefaultPadding / 2,
+    //       ),
+    //       decoration: BoxDecoration(
+    //         color: Color(0xFFFCBF1E),
+    //         borderRadius: BorderRadius.circular(30),
+    //       ),
+    //       child: Center(
+    //         child: Column(
+    //           children: [
+    //             Text('$progress%'),
+    //             isDownloaded ? Text(
+    //                     'File Downloaded! You can see your file in the Download\'s folder',
+    //                   )
+    //                 : Text("View 3D Photos"),
+    //             // isDownloaded ? Text(
+    //             //         'File Downloaded! You can see your file in the application\'s directory \n \n $directory',
+    //             //       )
+    //             //     : Text("View 3D Photos"),
+    //           ],
+    //         ),
+    //       ),
+          
+    //     )
+    //    : GestureDetector(
+    //     onTap: () async{
+    //       downloadFile(uri, filename, result);
+    //       // _buttonFalse();
+    //     },
+    //     child: Container(
+    //       margin: EdgeInsets.all(kDefaultPadding),
+    //       padding: EdgeInsets.symmetric(
+    //         horizontal: kDefaultPadding,
+    //         vertical: kDefaultPadding / 2,
+    //       ),
+    //       decoration: BoxDecoration(
+    //         color: Color(0xFFFCBF1E),
+    //         borderRadius: BorderRadius.circular(30),
+    //       ),
+    //       child: Center(
+    //         child: Column(
+    //           children: [
+    //             Text('$progress%'),
+    //             isDownloaded ? Text(
+    //                     'File Downloaded! You can see your file in the Downloads\'s folder',
+    //                   )
+    //                 : Text("View 3D Photos"),
+    //           ],
+    //         ),
+    //       ),
+          
+    //     ),
+    //   ),
+    // );
+  }
+
+  Widget plan500() {
+    return buttonPlanDownload ? GestureDetector(
+      onTap: _show500,
+>>>>>>> Stashed changes
       child: Container(
         margin: EdgeInsets.all(kDefaultPadding),
         padding: EdgeInsets.symmetric(
@@ -1108,11 +1677,20 @@ class _BodyState extends State<Body> {
         child: Center(
           child: Column(
             children: [
+<<<<<<< Updated upstream
               Text("View 3D Photos"),
+=======
+              Text('$progressFloorPlan%'),
+              isDownloadedFloorPlan ? Text(
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
+                    )
+              : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
+>>>>>>> Stashed changes
             ],
           ),
         ),
       ),
+<<<<<<< Updated upstream
     );
 
     // return Container(
@@ -1229,6 +1807,33 @@ class _BodyState extends State<Body> {
               ),
             ),
           );
+=======
+    ) :
+    
+      Container(
+        margin: EdgeInsets.all(kDefaultPadding),
+        padding: EdgeInsets.symmetric(
+          horizontal: kDefaultPadding,
+          vertical: kDefaultPadding / 2,
+        ),
+        decoration: BoxDecoration(
+          color: Color(0xFFFCBF1E),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Center(
+          child: Column(
+            children: [
+              Text('$progressFloorPlan%'),
+              isDownloadedFloorPlan ? Text(
+                      'File Downloaded! You can see your file in the Downloads\'s folder',
+                    )
+              : Text("Floor Plan Preview Ksh ${widget.product.planAmount}"),
+            ],
+          ),
+        ),
+        
+      );
+>>>>>>> Stashed changes
   }
 
   _show500() {
@@ -2516,6 +3121,7 @@ class _BodyState extends State<Body> {
     ).show();
   }
 
+<<<<<<< Updated upstream
   _creditCard() {
     // final paypal1 = context.watch<Counter>().paypal;
     webPay
@@ -2543,6 +3149,53 @@ class _BodyState extends State<Body> {
                     icon: Icon(Icons.person),
                     labelText: 'Last Name',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+=======
+  _success() {
+    
+        buttonPlanDownload ? Alert(
+          context: context,
+          type: AlertType.success,
+          title: "Transaction Successful \n \n $progressFloorPlan%",
+          desc: isDownloadedFloorPlan ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
+          buttons: [
+            DialogButton(
+              child: Row(
+                children: [
+                  Text(
+                    "Download File",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
+              ),
+              // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+              onPressed: () async{
+                setState(() {
+                  buttonPlanDownload = false;
+                });
+                Navigator.of(context, rootNavigator: true).pop();
+                _success();
+                downloadFileFloorPlan(uriFloorPlan, filenameFloorPlan, resultFloorPlan);
+                // setState(() {
+                //   isDownloadedFloorPlan = false;
+                // });
+              },
+              width: 120,
+            )
+          ],
+        ).show() :
+        Alert(
+          context: context,
+          type: AlertType.success,
+          title: "File is Downloading",
+          desc: isDownloadedFloorPlan ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
+          buttons: [
+            DialogButton(
+              child: Column(
+                children: [
+                  Text(
+                    "OK",
+                    style: TextStyle(color: Colors.white, fontSize: 22),
+>>>>>>> Stashed changes
                   ),
                   inputFormatters: <TextInputFormatter>[],
                 ),
@@ -2627,6 +3280,7 @@ class _BodyState extends State<Body> {
         : success();
   }
 
+<<<<<<< Updated upstream
   _creditCardZip() {
     // final paypal1 = context.watch<Counter>().paypal;
     zipPay
@@ -2654,6 +3308,53 @@ class _BodyState extends State<Body> {
                     icon: Icon(Icons.person),
                     labelText: 'Last Name',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+=======
+  _successBasic() {
+    
+        buttonBasicDownload ? Alert(
+          context: context,
+          type: AlertType.success,
+          title: "Transaction Successful \n \n $progressBasic%",
+          desc: isDownloadedBasic ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
+          buttons: [
+            DialogButton(
+              child: Row(
+                children: [
+                  Text(
+                    "Download File",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
+              ),
+              // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+              onPressed: () async{
+                setState(() {
+                  buttonBasicDownload = false;
+                });
+                Navigator.of(context, rootNavigator: true).pop();
+                _successBasic();
+                downloadFileBasic(uriBasic, filenameBasic, resultBasic);
+                // setState(() {
+                //   isDownloadedFloorPlan = false;
+                // });
+              },
+              width: 120,
+            )
+          ],
+        ).show() :
+        Alert(
+          context: context,
+          type: AlertType.success,
+          title: "File is Downloading",
+          desc: isDownloadedBasic ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
+          buttons: [
+            DialogButton(
+              child: Column(
+                children: [
+                  Text(
+                    "OK",
+                    style: TextStyle(color: Colors.white, fontSize: 22),
+>>>>>>> Stashed changes
                   ),
                   inputFormatters: <TextInputFormatter>[],
                 ),
@@ -2738,6 +3439,7 @@ class _BodyState extends State<Body> {
         : _successBasic();
   }
 
+<<<<<<< Updated upstream
   _creditCardArch() {
     // final paypal1 = context.watch<Counter>().paypal;
     archPay
@@ -2754,6 +3456,22 @@ class _BodyState extends State<Body> {
                     icon: Icon(Icons.person),
                     labelText: 'First Name',
                     // errorText: Provider.of<AddTruckProvider>(context).getMessage2(),
+=======
+  _successPremium() {
+    
+        buttonPremiumDownload ? Alert(
+          context: context,
+          type: AlertType.success,
+          title: "Transaction Successful \n \n $progressPremium%",
+          desc: isDownloadedPremium ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Click Button To Download.",
+          buttons: [
+            DialogButton(
+              child: Row(
+                children: [
+                  Text(
+                    "Download File",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+>>>>>>> Stashed changes
                   ),
                   inputFormatters: <TextInputFormatter>[],
                 ),
@@ -2815,6 +3533,7 @@ class _BodyState extends State<Body> {
                 // onPressed: () => _payment2(),
                 width: 120,
               ),
+<<<<<<< Updated upstream
               DialogButton(
                 child: Text(
                   "Download",
@@ -3181,6 +3900,36 @@ class Payment extends StatelessWidget {
                         style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
                     ],
+=======
+              // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+              onPressed: () async{
+                setState(() {
+                  buttonPremiumDownload = false;
+                });
+                Navigator.of(context, rootNavigator: true).pop();
+                _successPremium();
+                downloadFilePremium(uriPremium, filenamePremium, resultPremium);
+                // setState(() {
+                //   isDownloadedFloorPlan = false;
+                // });
+              },
+              width: 120,
+            )
+          ],
+        ).show() :
+        Alert(
+          context: context,
+          type: AlertType.success,
+          title: "File is Downloading",
+          desc: isDownloadedPremium ? 'File Downloaded! You can see your file in the Downloads\'s folder' : "Close Dialogs To View Download.",
+          buttons: [
+            DialogButton(
+              child: Column(
+                children: [
+                  Text(
+                    "OK",
+                    style: TextStyle(color: Colors.white, fontSize: 22),
+>>>>>>> Stashed changes
                   ),
                   // onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
                   onPressed: () async {
