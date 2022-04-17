@@ -1505,7 +1505,7 @@ class _BodyState extends State<Body> {
                   ),
                   inputFormatters: <TextInputFormatter>[
                     LengthLimitingTextInputFormatter(12),
-                    WhitelistingTextInputFormatter.digitsOnly,
+                    // WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
                 // TextField(
@@ -1626,7 +1626,7 @@ class _BodyState extends State<Body> {
                   ),
                   inputFormatters: <TextInputFormatter>[
                     LengthLimitingTextInputFormatter(12),
-                    WhitelistingTextInputFormatter.digitsOnly,
+                    // WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
                 // TextField(
@@ -1749,7 +1749,7 @@ class _BodyState extends State<Body> {
                   ),
                   inputFormatters: <TextInputFormatter>[
                     LengthLimitingTextInputFormatter(12),
-                    WhitelistingTextInputFormatter.digitsOnly,
+                    // WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
                 // TextField(
@@ -1807,7 +1807,7 @@ class _BodyState extends State<Body> {
                   ),
                   inputFormatters: <TextInputFormatter>[
                     LengthLimitingTextInputFormatter(12),
-                    WhitelistingTextInputFormatter.digitsOnly,
+                    // WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
                 SizedBox(
@@ -1931,7 +1931,7 @@ class _BodyState extends State<Body> {
                   ),
                   inputFormatters: <TextInputFormatter>[
                     LengthLimitingTextInputFormatter(12),
-                    WhitelistingTextInputFormatter.digitsOnly,
+                    // WhitelistingTextInputFormatter.digitsOnly,
                   ],
                 ),
                 // TextField(
